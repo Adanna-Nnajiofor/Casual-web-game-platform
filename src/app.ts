@@ -1,0 +1,36 @@
+import express, { Application, Request, Response } from "express";
+import cors from "cors";
+import path from "path";
+import authRoutes from "./routes/auth.routes";
+import gameRoutes from "./routes/game.routes";
+import sessionRoutes from "./routes/session.routes";
+import leaderboardRoutes from "./routes/leaderboard.routes";
+import userRoutes from "./routes/user.routes";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+
+const app: Application = express();
+
+// Swagger docs
+const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
+
+// Middleware
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(express.json());
+
+// Routes
+app.use("/auth", authRoutes);
+app.use("/games", gameRoutes);
+app.use("/sessions", sessionRoutes);
+app.use("/leaderboard", leaderboardRoutes);
+app.use("/user", userRoutes);
+
+// Swagger documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Health check
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Casual Web Game Platform Backend is running!");
+});
+
+export default app;

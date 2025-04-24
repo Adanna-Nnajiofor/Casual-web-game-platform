@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: Casual Game Platform API
+  version: 1.0.0
+  description: API documentation for the casual game platform
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User registered
+        "400":
+          description: User already exists
+  /auth/login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "400":
+          description: Invalid credentials
+  /games:
+    get:
+      summary: Get all games
+      responses:
+        "200":
+          description: List of all games
+  /games/{slug}:
+    get:
+      summary: Get a game by its slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The game details
+        "404":
+          description: Game not found
+  /sessions:
+    post:
+      summary: Save a user's session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                gameId:
+                  type: string
+                score:
+                  type: integer
+                duration:
+                  type: integer
+                difficulty:
+                  type: string
+                completed:
+                  type: boolean
+      responses:
+        "201":
+          description: Session saved
+
+  /user:
+    get:
+      summary: Get all users
+      responses:
+        "200":
+          description: List of users
+
+  /user/{userId}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User found
+        "404":
+          description: User not found
+
+    put:
+      summary: Update a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                avatar:
+                  type: string
+      responses:
+        "200":
+          description: User updated
+        "404":
+          description: User not found
+
+    delete:
+      summary: Delete a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User deleted
+        "404":
+          description: User not found
+
+  /user/{userId}/stats:
+    patch:
+      summary: Update user stats
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                totalScore:
+                  type: integer
+                totalGamesPlayed:
+                  type: integer
+                achievements:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Stats updated
+        "404":
+          description: User not found
+
+  /user/{userId}/friends:
+    post:
+      summary: Add a friend
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                friendId:
+                  type: string
+      responses:
+        "200":
+          description: Friend added
+        "404":
+          description: User or friend not found
+        "400":
+          description: Cannot add yourself
+
+  /leaderboard/{gameId}:
+    get:
+      summary: Get leaderboard for a game
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Leaderboard data
+        "500":
+          description: Failed to fetch leaderboard
+
+  /leaderboard:
+    post:
+      summary: Submit score to leaderboard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: string
+                score:
+                  type: integer
+      responses:
+        "201":
+          description: Score submitted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Game not found
