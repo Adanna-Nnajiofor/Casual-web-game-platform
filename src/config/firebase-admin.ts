@@ -1,29 +1,25 @@
 import * as admin from "firebase-admin";
 
-// Ensure the env var exists
 const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
 if (!firebaseServiceAccount) {
-  throw new Error(
-    "FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not defined."
-  );
+  throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not set");
 }
 
-let serviceAccount;
+let serviceAccount: admin.ServiceAccount;
 try {
-  serviceAccount = JSON.parse(firebaseServiceAccount);
-} catch (err) {
+  serviceAccount = JSON.parse(firebaseServiceAccount); // Parse the JSON string
+} catch (error) {
   throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON.");
 }
 
-// Initialize Firebase Admin only once
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com/", // Optional
+    databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com", // Optional
   });
 }
 
-// Export what you need
 const db = admin.firestore();
 const auth = admin.auth();
 

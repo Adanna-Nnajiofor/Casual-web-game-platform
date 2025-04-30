@@ -36,18 +36,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = exports.db = exports.admin = void 0;
 const admin = __importStar(require("firebase-admin"));
 exports.admin = admin;
-// Parse service account key from environment variable
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-// Initialize Firebase Admin only once
+const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+if (!firebaseServiceAccount) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not set");
+}
+let serviceAccount;
+try {
+    serviceAccount = JSON.parse(firebaseServiceAccount); // Parse the JSON string
+}
+catch (error) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON.");
+}
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com/", // Realtime Database URL (if needed)
+        databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com", // Optional
     });
 }
-// Access Firestore (for Firestore)
 const db = admin.firestore();
 exports.db = db;
-// Access Authentication (for token verification)
 const auth = admin.auth();
 exports.auth = auth;
