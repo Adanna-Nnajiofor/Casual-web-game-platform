@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+// Define the TypeScript interface for User
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
   password: string;
@@ -11,8 +13,14 @@ export interface IUser extends Document {
     achievements: string[];
   };
   friends: mongoose.Types.ObjectId[];
+  flags?: {
+    type: string;
+    reason: string;
+    timestamp: Date;
+  }[];
 }
 
+// Define the Mongoose schema
 const UserSchema: Schema = new Schema(
   {
     username: {
@@ -55,8 +63,25 @@ const UserSchema: Schema = new Schema(
         ref: "User",
       },
     ],
+    flags: [
+      {
+        type: {
+          type: String,
+          required: true,
+        },
+        reason: {
+          type: String,
+          required: true,
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
 
+// Export the model
 export default mongoose.model<IUser>("User", UserSchema);

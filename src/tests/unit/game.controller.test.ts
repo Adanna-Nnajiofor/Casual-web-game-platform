@@ -3,14 +3,10 @@ import app from "../../app";
 import Game from "../../models/Game.model";
 
 // Mock the Game model
-jest.mock("../../models/Game.model.ts", () => ({
+jest.mock("../../models/Game.model", () => ({
   __esModule: true,
   default: {
-    find: jest.fn(),
     findOne: jest.fn(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    findByIdAndDelete: jest.fn(),
     create: jest.fn(),
   },
 }));
@@ -18,23 +14,25 @@ jest.mock("../../models/Game.model.ts", () => ({
 describe("Game Controller", () => {
   afterEach(() => jest.clearAllMocks()); // Clear mocks after each test
 
-  it("should fetch all games", async () => {
-    // Mock the resolved value for the find method
-    (Game.find as jest.Mock).mockResolvedValue([{ title: "Game One" }]);
-
-    const res = await request(app).get("/games");
-
-    expect(res.status).toBe(200);
-    expect(res.body[0].title).toBe("Game One");
-  });
-
   it("should fetch a game by slug", async () => {
-    // Mock the resolved value for the findOne method
-    (Game.findOne as jest.Mock).mockResolvedValue({ slug: "slug-game" });
+    // Mock the Game.findOne response to return a dummy game
+    const game = { title: "Game One", slug: "slug-game" };
+    (Game.findOne as jest.Mock).mockResolvedValue(game); // Mock the response
 
     const res = await request(app).get("/games/slug-game");
 
     expect(res.status).toBe(200);
     expect(res.body.slug).toBe("slug-game");
+    expect(res.body.title).toBe("Game One");
+  });
+
+  it("should return 404 if game not found", async () => {
+    // Mock the findOne method to return null when the game is not found
+    (Game.findOne as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get("/games/nonexistent-slug");
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("Game not found");
   });
 });

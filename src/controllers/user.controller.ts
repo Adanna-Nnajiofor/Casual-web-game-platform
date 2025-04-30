@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import User from "../models/user.model";
+import { validateAndUpdateScore } from "../services/score.service";
 
 // Update user
 export const updateUser = async (
@@ -93,7 +94,10 @@ export const updateUserStats = async (
       return;
     }
 
-    user.stats.totalScore += totalScore || 0;
+    // Use the validateAndUpdateScore function to validate and update the score
+    await validateAndUpdateScore(userId, totalScore);
+
+    // Update total games played and achievements as well
     user.stats.totalGamesPlayed += totalGamesPlayed || 0;
 
     if (achievements && Array.isArray(achievements)) {

@@ -6,6 +6,8 @@ import gameRoutes from "./routes/game.routes";
 import sessionRoutes from "./routes/session.routes";
 import leaderboardRoutes from "./routes/leaderboard.routes";
 import userRoutes from "./routes/user.routes";
+import friendsRoutes from "./routes/friends.routes";
+import feedbackRoutes from "./routes/feedback.routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 
@@ -24,6 +26,8 @@ app.use("/games", gameRoutes);
 app.use("/sessions", sessionRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/user", userRoutes);
+app.use("/friends", friendsRoutes);
+app.use("/feedback", feedbackRoutes);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

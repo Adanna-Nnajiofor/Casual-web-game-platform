@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { createUser } from "../../services/userService";
+import { createUser } from "../../services/user.service";
 import { CreateUserInput } from "../../types/user";
 import User from "../../models/user.model";
 import "dotenv/config";
@@ -9,18 +9,27 @@ jest.setTimeout(20000);
 
 let mongoServer: MongoMemoryServer;
 
-beforeEach(async () => {
-  await User.deleteMany({}); // Clear all users before each test
-});
-
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
+
+  //  Important: Disconnect any existing mongoose connection first
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
+afterEach(async () => {
+  if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
+    await mongoose.connection.db.dropDatabase();
+  }
+});
+
 afterAll(async () => {
-  await mongoose.disconnect();
+  //  Proper cleanup
+  await mongoose.connection.close();
   if (mongoServer) await mongoServer.stop();
 });
 

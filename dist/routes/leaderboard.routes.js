@@ -11,4 +11,6 @@ const router = express_1.default.Router();
 router.get("/:gameId", leaderboard_controller_1.getLeaderboard);
 //  POST a new score to the leaderboard (authenticated users only)
 router.post("/", auth_middleware_1.authenticate, leaderboard_controller_1.postScore);
+// GET friend leaderboard for a specific game (authenticated users only)
+router.get("/:gameId/friends", auth_middleware_1.authenticate, leaderboard_controller_1.getFriendLeaderboard);
 exports.default = router;

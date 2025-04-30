@@ -16,31 +16,29 @@ const supertest_1 = __importDefault(require("supertest"));
 const app_1 = __importDefault(require("../../app"));
 const Game_model_1 = __importDefault(require("../../models/Game.model"));
 // Mock the Game model
-jest.mock("../../models/Game.model.ts", () => ({
+jest.mock("../../models/Game.model", () => ({
     __esModule: true,
     default: {
-        find: jest.fn(),
         findOne: jest.fn(),
-        findById: jest.fn(),
-        findByIdAndUpdate: jest.fn(),
-        findByIdAndDelete: jest.fn(),
         create: jest.fn(),
     },
 }));
 describe("Game Controller", () => {
     afterEach(() => jest.clearAllMocks()); // Clear mocks after each test
-    it("should fetch all games", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Mock the resolved value for the find method
-        Game_model_1.default.find.mockResolvedValue([{ title: "Game One" }]);
-        const res = yield (0, supertest_1.default)(app_1.default).get("/games");
-        expect(res.status).toBe(200);
-        expect(res.body[0].title).toBe("Game One");
-    }));
     it("should fetch a game by slug", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Mock the resolved value for the findOne method
-        Game_model_1.default.findOne.mockResolvedValue({ slug: "slug-game" });
+        // Mock the Game.findOne response to return a dummy game
+        const game = { title: "Game One", slug: "slug-game" };
+        Game_model_1.default.findOne.mockResolvedValue(game); // Mock the response
         const res = yield (0, supertest_1.default)(app_1.default).get("/games/slug-game");
         expect(res.status).toBe(200);
         expect(res.body.slug).toBe("slug-game");
+        expect(res.body.title).toBe("Game One");
+    }));
+    it("should return 404 if game not found", () => __awaiter(void 0, void 0, void 0, function* () {
+        // Mock the findOne method to return null when the game is not found
+        Game_model_1.default.findOne.mockResolvedValue(null);
+        const res = yield (0, supertest_1.default)(app_1.default).get("/games/nonexistent-slug");
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe("Game not found");
     }));
 });

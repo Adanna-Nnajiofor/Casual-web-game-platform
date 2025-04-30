@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addFriend = exports.updateUserStats = exports.deleteUser = exports.getUserById = exports.getAllUsers = exports.updateUser = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
+const score_service_1 = require("../services/score.service");
 // Update user
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
@@ -84,7 +85,9 @@ const updateUserStats = (req, res) => __awaiter(void 0, void 0, void 0, function
             res.status(404).json({ message: "User not found" });
             return;
         }
-        user.stats.totalScore += totalScore || 0;
+        // Use the validateAndUpdateScore function to validate and update the score
+        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore);
+        // Update total games played and achievements as well
         user.stats.totalGamesPlayed += totalGamesPlayed || 0;
         if (achievements && Array.isArray(achievements)) {
             user.stats.achievements.push(...achievements);

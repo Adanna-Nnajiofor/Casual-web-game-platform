@@ -14,21 +14,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const mongodb_memory_server_1 = require("mongodb-memory-server");
-const userService_1 = require("../../services/userService");
-const user_model_1 = __importDefault(require("../../models/user.model"));
+const user_service_1 = require("../../services/user.service");
 require("dotenv/config");
 jest.setTimeout(20000);
 let mongoServer;
-beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield user_model_1.default.deleteMany({}); // Clear all users before each test
-}));
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     mongoServer = yield mongodb_memory_server_1.MongoMemoryServer.create();
+    //  Important: Disconnect any existing mongoose connection first
+    if (mongoose_1.default.connection.readyState !== 0) {
+        yield mongoose_1.default.disconnect();
+    }
     const uri = mongoServer.getUri();
     yield mongoose_1.default.connect(uri);
 }));
+afterEach(() => __awaiter(void 0, void 0, void 0, function* () {
+    if (mongoose_1.default.connection.readyState === 1 && mongoose_1.default.connection.db) {
+        yield mongoose_1.default.connection.db.dropDatabase();
+    }
+}));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield mongoose_1.default.disconnect();
+    //  Proper cleanup
+    yield mongoose_1.default.connection.close();
     if (mongoServer)
         yield mongoServer.stop();
 }));
@@ -39,7 +45,7 @@ describe("User Service", () => {
             email: `adanna_${Date.now()}@example.com`,
             password: "securepass",
         };
-        const user = yield (0, userService_1.createUser)(userData);
+        const user = yield (0, user_service_1.createUser)(userData);
         expect(user).toHaveProperty("_id");
         expect(user.email).toBe(userData.email);
     }));

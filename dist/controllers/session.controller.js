@@ -16,6 +16,7 @@ exports.saveSession = void 0;
 const Session_model_1 = __importDefault(require("../models/Session.model"));
 const Game_model_1 = __importDefault(require("../models/Game.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
+const score_service_1 = require("../services/score.service");
 // Save a game session
 const saveSession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, gameId, score, duration, difficulty, completed } = req.body;
@@ -26,6 +27,13 @@ const saveSession = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             res.status(404).json({ message: "Game not found" });
             return;
         }
+        // Check if the user exists
+        const user = yield user_model_1.default.findById(userId);
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        // Create a new session
         const newSession = new Session_model_1.default({
             userId,
             gameId,
@@ -35,17 +43,24 @@ const saveSession = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             completed,
         });
         yield newSession.save();
-        // Update user stats
-        const user = yield user_model_1.default.findById(userId);
-        if (user) {
-            user.stats.totalGamesPlayed += 1;
-            user.stats.totalScore += score;
-            yield user.save();
-        }
+        // Calculate new score
+        const newTotalScore = user.stats.totalScore + score;
+        // Validate and update score
+        yield (0, score_service_1.validateAndUpdateScore)(userId, newTotalScore);
+        // Update total games played
+        user.stats.totalGamesPlayed += 1;
+        yield user.save();
         res.status(201).json({ message: "Session saved", session: newSession });
     }
     catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        if (error instanceof Error) {
+            console.error("Error saving session:", error.message);
+            res.status(500).json({ message: "Server error", error: error.message });
+        }
+        else {
+            console.error("Unexpected error:", error);
+            res.status(500).json({ message: "Server error", error: "Unknown error" });
+        }
     }
 });
 exports.saveSession = saveSession;
