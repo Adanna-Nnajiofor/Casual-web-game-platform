@@ -1,22 +1,26 @@
 import * as admin from "firebase-admin";
+import * as fs from "fs";
+import * as path from "path";
 
-const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+// Load environment variables
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
 
-if (!firebaseServiceAccount) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not set");
+if (!serviceAccountPath) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT_PATH is not defined in .env");
 }
 
-let serviceAccount: admin.ServiceAccount;
-try {
-  serviceAccount = JSON.parse(firebaseServiceAccount); // Parse the JSON string
-} catch (error) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON.");
+const fullPath = path.resolve(serviceAccountPath);
+
+if (!fs.existsSync(fullPath)) {
+  throw new Error(`Service account file not found at path: ${fullPath}`);
 }
+
+const serviceAccount = JSON.parse(fs.readFileSync(fullPath, "utf8"));
 
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com", // Optional
+    databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com",
   });
 }
 
