@@ -36,21 +36,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = exports.db = exports.admin = void 0;
 const admin = __importStar(require("firebase-admin"));
 exports.admin = admin;
-const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-if (!firebaseServiceAccount) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not set");
+const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+if (!serviceAccountString) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is not defined in environment variables");
 }
-let serviceAccount;
-try {
-    serviceAccount = JSON.parse(firebaseServiceAccount); // Parse the JSON string
-}
-catch (error) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON.");
-}
+const serviceAccount = JSON.parse(serviceAccountString);
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com", // Optional
+        databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com",
     });
 }
 const db = admin.firestore();
