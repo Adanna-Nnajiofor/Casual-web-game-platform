@@ -21,10 +21,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
 }
+// REGISTER SERVICE
 const registerUserService = (username, email, password) => __awaiter(void 0, void 0, void 0, function* () {
-    const existingUser = yield user_model_1.default.findOne({ email });
+    // Check if either email or username already exists
+    const existingUser = yield user_model_1.default.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-        throw new Error("User already exists");
+        throw new Error("User with this email or username already exists");
     }
     const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
     const newUser = new user_model_1.default({
@@ -39,18 +41,34 @@ const registerUserService = (username, email, password) => __awaiter(void 0, voi
     return { token, user: newUser };
 });
 exports.registerUserService = registerUserService;
-const loginUserService = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email });
-    if (!user) {
-        throw new Error("User not found");
+// LOGIN SERVICE
+const loginUserService = (identifier, password) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Check if the identifier is an email (simpler check)
+        const isEmail = identifier.includes("@") && identifier.includes(".");
+        const trimmedIdentifier = identifier.trim();
+        const user = yield user_model_1.default.findOne(isEmail ? { email: trimmedIdentifier } : { username: trimmedIdentifier });
+        // If no user is found (whether email or username), throw an error
+        if (!user) {
+            throw new Error(`User with ${isEmail ? "email" : "username"} "${identifier}" not found.`);
+        }
+        // Check if the password matches the hashed password
+        const isMatch = yield bcryptjs_1.default.compare(password, user.password);
+        if (!isMatch) {
+            throw new Error("Invalid credentials. Please check your password.");
+        }
+        // Generate JWT token for the user
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
+            expiresIn: "1h",
+        });
+        return {
+            token,
+            user,
+            welcomeMessage: `Welcome ${user.username}`,
+        };
     }
-    const isMatch = yield bcryptjs_1.default.compare(password, user.password);
-    if (!isMatch) {
-        throw new Error("Invalid credentials");
+    catch (error) {
+        throw new Error(error.message || "An error occurred during login");
     }
-    const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
-        expiresIn: "1h",
-    });
-    return { token, user };
 });
 exports.loginUserService = loginUserService;

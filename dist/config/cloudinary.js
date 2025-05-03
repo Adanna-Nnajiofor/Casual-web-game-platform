@@ -33,64 +33,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-// Define the Mongoose schema
-const UserSchema = new mongoose_1.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    avatar: {
-        type: String,
-        default: "",
-    },
-    stats: {
-        totalGamesPlayed: {
-            type: Number,
-            default: 0,
-        },
-        totalScore: {
-            type: Number,
-            default: 0,
-        },
-        achievements: {
-            type: [String],
-            default: [],
-        },
-    },
-    friends: [
-        {
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    ],
-    flags: [
-        {
-            type: {
-                type: String,
-                required: true,
-            },
-            reason: {
-                type: String,
-                required: true,
-            },
-            timestamp: {
-                type: Date,
-                default: Date.now,
-            },
-        },
-    ],
-}, { timestamps: true });
-exports.default = mongoose_1.default.model("User", UserSchema);
+exports.cloudinary = void 0;
+const cloudinary = __importStar(require("cloudinary"));
+exports.cloudinary = cloudinary;
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});

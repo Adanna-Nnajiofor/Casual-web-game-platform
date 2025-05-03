@@ -12,26 +12,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addFriend = exports.updateUserStats = exports.deleteUser = exports.getUserById = exports.getAllUsers = exports.updateUser = void 0;
+exports.getUserFriends = exports.updateUserStats = exports.addFriend = exports.deleteUser = exports.updateUser = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const score_service_1 = require("../services/score.service");
-// Update user
-const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.params;
-    const { username, email, avatar } = req.body;
+const avatar_service_1 = require("../services/avatar.service");
+// Create user
+const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username, email, password, avatar } = req.body;
     try {
-        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: { username, email, avatar } }, { new: true });
-        if (!updatedUser) {
-            res.status(404).json({ message: "User not found" });
-            return;
+        let avatarUrl = avatar;
+        if (req.files && req.files.avatar) {
+            const file = req.files.avatar[0];
+            // Use AvatarService to upload avatar
+            avatarUrl = yield avatar_service_1.AvatarService.uploadAvatar(file);
         }
-        res.status(200).json({ message: "User updated", user: updatedUser });
+        const user = new user_model_1.default({
+            username,
+            email,
+            password,
+            avatar: avatarUrl,
+            stats: {
+                totalScore: 0,
+                totalGamesPlayed: 0,
+                achievements: [],
+            },
+            friends: [],
+        });
+        const savedUser = yield user.save();
+        res.status(201).json({ message: "User created", user: savedUser });
     }
     catch (error) {
-        res.status(500).json({ message: "Update failed", error });
+        console.error(error);
+        res.status(500).json({ message: "Error creating user", error });
     }
 });
-exports.updateUser = updateUser;
+exports.createUser = createUser;
 // Get all users
 const getAllUsers = (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -59,6 +74,29 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getUserById = getUserById;
+// Update user
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { username, email, avatar } = req.body;
+    try {
+        let avatarUrl = avatar; // If avatar URL is passed directly (not uploading an image)
+        if (req.files && req.files.avatar) {
+            const file = req.files.avatar[0];
+            // Use AvatarService to upload avatar
+            avatarUrl = yield avatar_service_1.AvatarService.uploadAvatar(file);
+        }
+        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: { username, email, avatar: avatarUrl } }, { new: true });
+        if (!updatedUser) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.status(200).json({ message: "User updated", user: updatedUser });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Update failed", error });
+    }
+});
+exports.updateUser = updateUser;
 // Delete user
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
@@ -75,31 +113,6 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteUser = deleteUser;
-// Update user stats (e.g. after a game)
-const updateUserStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.params;
-    const { totalScore, totalGamesPlayed, achievements } = req.body;
-    try {
-        const user = yield user_model_1.default.findById(userId);
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
-        // Use the validateAndUpdateScore function to validate and update the score
-        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore);
-        // Update total games played and achievements as well
-        user.stats.totalGamesPlayed += totalGamesPlayed || 0;
-        if (achievements && Array.isArray(achievements)) {
-            user.stats.achievements.push(...achievements);
-        }
-        yield user.save();
-        res.status(200).json({ message: "Stats updated", user });
-    }
-    catch (error) {
-        res.status(500).json({ message: "Failed to update stats", error });
-    }
-});
-exports.updateUserStats = updateUserStats;
 // Add a friend (bi-directional)
 const addFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
@@ -130,3 +143,45 @@ const addFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.addFriend = addFriend;
+// Update user stats (e.g. after a game)
+const updateUserStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { totalScore, totalGamesPlayed, achievements } = req.body;
+    try {
+        const user = yield user_model_1.default.findById(userId);
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        // Use the validateAndUpdateScore function to validate and update the score
+        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore);
+        // Update total games played and achievements as well
+        user.stats.totalGamesPlayed += totalGamesPlayed || 0;
+        if (achievements && Array.isArray(achievements)) {
+            user.stats.achievements.push(...achievements);
+        }
+        yield user.save();
+        res.status(200).json({ message: "Stats updated", user });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to update stats", error });
+    }
+});
+exports.updateUserStats = updateUserStats;
+// Get all friends of a user
+const getUserFriends = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    try {
+        const user = yield user_model_1.default.findById(userId).populate("friends");
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.status(200).json(user.friends);
+    }
+    catch (error) {
+        console.error("Error fetching friends:", error);
+        res.status(500).json({ message: "Error fetching friends", error });
+    }
+});
+exports.getUserFriends = getUserFriends;
