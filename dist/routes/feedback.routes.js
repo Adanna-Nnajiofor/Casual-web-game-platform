@@ -36,8 +36,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const feedbackController = __importStar(require("../controllers/feedback.controller"));
 const router = (0, express_1.Router)();
-// Route to submit feedback (emoji) for a target (user/product)
 router.post("/feedback", feedbackController.submitFeedback);
-// Route to get feedback for a target (user/product)
 router.get("/feedback", feedbackController.getFeedback);
 exports.default = router;

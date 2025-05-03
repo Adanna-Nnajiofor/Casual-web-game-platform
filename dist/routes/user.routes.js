@@ -14,4 +14,5 @@ router.patch("/:userId", auth_middleware_1.authenticate, user_controller_1.updat
 router.delete("/:userId", auth_middleware_1.authenticate, user_controller_1.deleteUser);
 router.patch("/:userId/stats", auth_middleware_1.authenticate, user_controller_1.updateUserStats);
 router.post("/:userId/add-friend", auth_middleware_1.authenticate, user_controller_1.addFriend);
+router.get("/:userId/friends", auth_middleware_1.authenticate, user_controller_1.getUserFriends);
 exports.default = router;

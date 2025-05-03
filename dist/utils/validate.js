@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sessionSchema = exports.loginSchema = exports.registerSchema = void 0;
 exports.validate = validate;
 const zod_1 = require("zod");
-//  User registration schema
+// User registration schema
 exports.registerSchema = zod_1.z.object({
     username: zod_1.z
         .string()
@@ -18,16 +18,22 @@ exports.registerSchema = zod_1.z.object({
         .nonempty("Password is required")
         .min(6, "Password must be at least 6 characters"),
 });
-//  User login schema
-exports.loginSchema = zod_1.z.object({
-    email: zod_1.z
+// User login schema
+exports.loginSchema = zod_1.z
+    .object({
+    email: zod_1.z.string().email("Invalid email address").optional(),
+    username: zod_1.z
         .string()
-        .nonempty("Email is required")
-        .email("Invalid email address"),
+        .min(3, "Username must be at least 3 characters")
+        .optional(),
     password: zod_1.z
         .string()
         .nonempty("Password is required")
         .min(6, "Password must be at least 6 characters"),
+})
+    .refine((data) => data.email || data.username, {
+    message: "Either email or username is required",
+    path: ["identifier"],
 });
 // Game session submission schema
 exports.sessionSchema = zod_1.z.object({
