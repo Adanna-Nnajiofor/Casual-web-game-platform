@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-//  User registration schema
+// User registration schema
 export const registerSchema = z.object({
   username: z
     .string()
@@ -18,18 +18,23 @@ export const registerSchema = z.object({
     .min(6, "Password must be at least 6 characters"),
 });
 
-//  User login schema
-export const loginSchema = z.object({
-  email: z
-    .string()
-    .nonempty("Email is required")
-    .email("Invalid email address"),
-
-  password: z
-    .string()
-    .nonempty("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+// User login schema
+export const loginSchema = z
+  .object({
+    email: z.string().email("Invalid email address").optional(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .optional(),
+    password: z
+      .string()
+      .nonempty("Password is required")
+      .min(6, "Password must be at least 6 characters"),
+  })
+  .refine((data) => data.email || data.username, {
+    message: "Either email or username is required",
+    path: ["identifier"],
+  });
 
 // Game session submission schema
 export const sessionSchema = z.object({

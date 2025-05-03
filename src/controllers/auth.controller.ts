@@ -1,26 +1,25 @@
-import { Request, Response, RequestHandler } from "express";
+import { RequestHandler } from "express";
+import { validate } from "../utils/validate";
 import { registerSchema, loginSchema } from "../utils/validate";
 import {
   registerUserService,
   loginUserService,
 } from "../services/auth.service";
 
-// Register
-export const registerUser: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  const parsed = registerSchema.safeParse(req.body);
+// REGISTER CONTROLLER
+export const registerUser: RequestHandler = async (req, res): Promise<void> => {
+  // Validate the registration data using the registerSchema
+  const validation = validate(registerSchema, req.body);
 
-  if (!parsed.success) {
+  if (!validation.success) {
     res.status(400).json({
       message: "Validation failed",
-      errors: parsed.error.format(),
+      errors: validation.errors,
     });
     return;
   }
 
-  const { username, email, password } = parsed.data;
+  const { username, email, password } = validation.data!;
 
   try {
     const { token, user } = await registerUserService(
@@ -28,33 +27,66 @@ export const registerUser: RequestHandler = async (
       email,
       password
     );
-    res.status(201).json({ message: "User registered", token, user });
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+      token,
+    });
   } catch (error: any) {
-    res.status(400).json({ message: error.message || "Registration failed" });
+    res.status(400).json({
+      message: error.message || "Registration failed",
+    });
   }
 };
 
-// Login
-export const loginUser: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  const parsed = loginSchema.safeParse(req.body);
+// LOGIN CONTROLLER
+export const loginUser: RequestHandler = async (req, res): Promise<void> => {
+  // Validate the login data using the loginSchema
+  const validation = validate(loginSchema, req.body);
 
-  if (!parsed.success) {
+  if (!validation.success) {
     res.status(400).json({
       message: "Validation failed",
-      errors: parsed.error.format(),
+      errors: validation.errors,
     });
     return;
   }
 
-  const { email, password } = parsed.data;
+  const { email, username, password } = validation.data!;
+
+  // Choose identifier based on which one exists
+  const identifier = email || username;
+
+  if (!identifier || !password) {
+    res.status(400).json({
+      message: "Email or username and password are required for login",
+    });
+    return;
+  }
 
   try {
-    const { token, user } = await loginUserService(email, password);
-    res.status(200).json({ message: "Login successful", token, user });
+    const { token, user, welcomeMessage } = await loginUserService(
+      identifier as string,
+      password
+    );
+
+    res.status(200).json({
+      message: welcomeMessage,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+      token,
+    });
   } catch (error: any) {
-    res.status(400).json({ message: error.message || "Login failed" });
+    res.status(401).json({
+      message: error.message || "Login failed",
+    });
   }
 };

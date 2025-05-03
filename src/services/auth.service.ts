@@ -9,14 +9,16 @@ if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined in environment variables");
 }
 
+// REGISTER SERVICE
 export const registerUserService = async (
   username: string,
   email: string,
   password: string
 ) => {
-  const existingUser = await User.findOne({ email });
+  // Check if either email or username already exists
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new Error("User with this email or username already exists");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,20 +38,45 @@ export const registerUserService = async (
   return { token, user: newUser };
 };
 
-export const loginUserService = async (email: string, password: string) => {
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error("User not found");
+// LOGIN SERVICE
+export const loginUserService = async (
+  identifier: string,
+  password: string
+) => {
+  try {
+    // Check if the identifier is an email (simpler check)
+    const isEmail = identifier.includes("@") && identifier.includes(".");
+
+    const trimmedIdentifier = identifier.trim();
+
+    const user = await User.findOne(
+      isEmail ? { email: trimmedIdentifier } : { username: trimmedIdentifier }
+    );
+
+    // If no user is found (whether email or username), throw an error
+    if (!user) {
+      throw new Error(
+        `User with ${isEmail ? "email" : "username"} "${identifier}" not found.`
+      );
+    }
+
+    // Check if the password matches the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new Error("Invalid credentials. Please check your password.");
+    }
+
+    // Generate JWT token for the user
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return {
+      token,
+      user,
+      welcomeMessage: `Welcome ${user.username}`,
+    };
+  } catch (error: any) {
+    throw new Error(error.message || "An error occurred during login");
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error("Invalid credentials");
-  }
-
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
-  return { token, user };
 };

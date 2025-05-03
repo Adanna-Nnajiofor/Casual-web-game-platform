@@ -11,44 +11,75 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loginUser = exports.registerUser = void 0;
 const validate_1 = require("../utils/validate");
+const validate_2 = require("../utils/validate");
 const auth_service_1 = require("../services/auth.service");
-// Register
+// REGISTER CONTROLLER
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const parsed = validate_1.registerSchema.safeParse(req.body);
-    if (!parsed.success) {
+    // Validate the registration data using the registerSchema
+    const validation = (0, validate_1.validate)(validate_2.registerSchema, req.body);
+    if (!validation.success) {
         res.status(400).json({
             message: "Validation failed",
-            errors: parsed.error.format(),
+            errors: validation.errors,
         });
         return;
     }
-    const { username, email, password } = parsed.data;
+    const { username, email, password } = validation.data;
     try {
         const { token, user } = yield (0, auth_service_1.registerUserService)(username, email, password);
-        res.status(201).json({ message: "User registered", token, user });
+        res.status(201).json({
+            message: "User registered successfully",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
+            token,
+        });
     }
     catch (error) {
-        res.status(400).json({ message: error.message || "Registration failed" });
+        res.status(400).json({
+            message: error.message || "Registration failed",
+        });
     }
 });
 exports.registerUser = registerUser;
-// Login
+// LOGIN CONTROLLER
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const parsed = validate_1.loginSchema.safeParse(req.body);
-    if (!parsed.success) {
+    // Validate the login data using the loginSchema
+    const validation = (0, validate_1.validate)(validate_2.loginSchema, req.body);
+    if (!validation.success) {
         res.status(400).json({
             message: "Validation failed",
-            errors: parsed.error.format(),
+            errors: validation.errors,
         });
         return;
     }
-    const { email, password } = parsed.data;
+    const { email, username, password } = validation.data;
+    // Choose identifier based on which one exists
+    const identifier = email || username;
+    if (!identifier || !password) {
+        res.status(400).json({
+            message: "Email or username and password are required for login",
+        });
+        return;
+    }
     try {
-        const { token, user } = yield (0, auth_service_1.loginUserService)(email, password);
-        res.status(200).json({ message: "Login successful", token, user });
+        const { token, user, welcomeMessage } = yield (0, auth_service_1.loginUserService)(identifier, password);
+        res.status(200).json({
+            message: welcomeMessage,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
+            token,
+        });
     }
     catch (error) {
-        res.status(400).json({ message: error.message || "Login failed" });
+        res.status(401).json({
+            message: error.message || "Login failed",
+        });
     }
 });
 exports.loginUser = loginUser;
