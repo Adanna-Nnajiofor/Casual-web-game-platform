@@ -50,7 +50,7 @@ const leaderboardSchema = new mongoose_1.Schema({
         required: true,
     },
     username: {
-        type: String, // Optional for performance (denormalization)
+        type: String,
     },
 }, {
     timestamps: true,

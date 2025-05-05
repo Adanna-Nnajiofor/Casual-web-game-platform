@@ -13,105 +13,111 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFriendLeaderboard = exports.postScore = exports.getLeaderboard = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const Leaderboard_model_1 = __importDefault(require("../models/Leaderboard.model"));
 const Game_model_1 = __importDefault(require("../models/Game.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
+const AppError_1 = require("../utils/AppError");
 // GET leaderboard for a specific game with pagination (public)
-const getLeaderboard = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getLeaderboard = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { gameId } = req.params;
-    const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit to 10
+    const { page = 1, limit = 10 } = req.query;
+    if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
+        return next(new AppError_1.AppError("Invalid game ID", 400));
+    }
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+    if (isNaN(parsedPage) || parsedPage < 1) {
+        return next(new AppError_1.AppError("Page must be a positive number", 400));
+    }
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+        return next(new AppError_1.AppError("Limit must be a number between 1 and 100", 400));
+    }
     try {
         const leaderboard = yield Leaderboard_model_1.default.find({ gameId })
             .populate("userId", "username")
             .sort({ score: -1 })
-            .skip((Number(page) - 1) * Number(limit)) // Pagination logic
-            .limit(Number(limit)); // Limit results
+            .skip((parsedPage - 1) * parsedLimit)
+            .limit(parsedLimit);
         res.json(leaderboard);
     }
     catch (err) {
-        res.status(500).json({ message: "Failed to fetch leaderboard" });
+        next(new AppError_1.AppError("Failed to fetch leaderboard", 500));
     }
 });
 exports.getLeaderboard = getLeaderboard;
 // POST a new score to the leaderboard (authenticated users only)
-const postScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { gameId, score } = req.body;
-    if (!req.user) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-    }
-    const { _id: userId, username } = req.user;
+const postScore = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const game = yield Game_model_1.default.findById(gameId);
-        if (!game) {
-            res.status(404).json({ message: "Game not found" });
-            return;
+        const { gameId, score } = req.body;
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        // Validate user
+        if (!userId)
+            return next(new AppError_1.AppError("Unauthorized", 401));
+        // Validate gameId format
+        if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
+            return next(new AppError_1.AppError("Invalid game ID", 400));
         }
-        const newScore = yield Leaderboard_model_1.default.create({
-            gameId,
-            userId,
-            username,
-            score,
-        });
-        res.status(201).json(newScore);
+        // Validate score
+        if (typeof score !== "number" || score < 0) {
+            return next(new AppError_1.AppError("Score must be a non-negative number", 400));
+        }
+        const game = yield Game_model_1.default.findById(gameId);
+        if (!game)
+            return next(new AppError_1.AppError("Game not found", 404));
+        const updatedScore = yield Leaderboard_model_1.default.findOneAndUpdate({ gameId, userId }, { $max: { score } }, { upsert: true, new: true });
+        res.status(201).json(updatedScore);
     }
-    catch (err) {
-        const error = err;
-        res
-            .status(500)
-            .json({ message: "Something went wrong", error: error.message });
+    catch (error) {
+        next(error);
     }
 });
 exports.postScore = postScore;
 // GET friend leaderboard for a specific game (filter by user's friends list)
-const getFriendLeaderboard = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.user) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-    }
+const getFriendLeaderboard = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { gameId } = req.params;
-    const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit to 10
-    const { _id: userId } = req.user; // Get the user ID of the authenticated user
+    const { page = 1, limit = 10 } = req.query;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    // Validate gameId format
+    if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
+        return next(new AppError_1.AppError("Invalid game ID", 400));
+    }
+    // Validate page and limit
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+    if (isNaN(parsedPage) || parsedPage < 1) {
+        return next(new AppError_1.AppError("Page must be a positive number", 400));
+    }
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+        return next(new AppError_1.AppError("Limit must be a number between 1 and 100", 400));
+    }
     try {
-        // Fetch the authenticated user's details from the database
+        if (!userId) {
+            return next(new AppError_1.AppError("Unauthorized", 401));
+        }
         const userDoc = yield user_model_1.default.findById(userId);
         if (!userDoc) {
-            res.status(404).json({ message: "User not found" });
-            return;
+            return next(new AppError_1.AppError("User not found", 404));
         }
-        // Get the user's friends list
         const friendsList = userDoc.friends || [];
-        // If the user has no friends, return an empty leaderboard
         if (friendsList.length === 0) {
             res.status(200).json([]);
             return;
         }
-        // Fetch leaderboard data of only the friends
         const leaderboard = yield Leaderboard_model_1.default.find({
             gameId,
             userId: { $in: friendsList },
         })
-            .populate("userId", "username") // Populate username field from the User model
-            .sort({ score: -1 }) // Sort by score descending
-            .skip((Number(page) - 1) * Number(limit)) // Pagination logic
-            .limit(Number(limit)); // Limit results
+            .populate("userId", "username")
+            .sort({ score: -1 })
+            .skip((parsedPage - 1) * parsedLimit)
+            .limit(parsedLimit);
         res.json(leaderboard);
     }
     catch (err) {
-        if (err instanceof Error) {
-            // Check if error is an instance of Error
-            res.status(500).json({
-                message: "Failed to fetch friend leaderboard",
-                error: err.message,
-            });
-        }
-        else {
-            // Fallback for unexpected error types
-            res.status(500).json({
-                message: "Failed to fetch friend leaderboard",
-                error: "An unknown error occurred",
-            });
-        }
+        next(new AppError_1.AppError("Failed to fetch friend leaderboard", 500));
     }
 });
 exports.getFriendLeaderboard = getFriendLeaderboard;

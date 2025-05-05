@@ -35,7 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const feedbackController = __importStar(require("../controllers/feedback.controller"));
+const rateLimiter_1 = require("../utils/rateLimiter");
 const router = (0, express_1.Router)();
+router.use(rateLimiter_1.rateLimiter);
 router.post("/feedback", feedbackController.submitFeedback);
 router.get("/feedback", feedbackController.getFeedback);
 exports.default = router;

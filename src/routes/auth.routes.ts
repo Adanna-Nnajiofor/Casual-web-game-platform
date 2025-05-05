@@ -1,7 +1,10 @@
 import express from "express";
 import { registerUser, loginUser } from "../controllers/auth.controller";
+import { rateLimiter } from "../utils/rateLimiter";
 
 const router = express.Router();
+
+router.use(rateLimiter);
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
