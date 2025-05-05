@@ -10,7 +10,7 @@ export const submitFeedback = async (
 
   if (!userId || !emoji || !targetId || !targetType) {
     res.status(400).json({ message: "Missing required fields" });
-    return; // Stop further execution
+    return;
   }
 
   try {

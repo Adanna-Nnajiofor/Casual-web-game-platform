@@ -1,25 +1,29 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import User from "../models/user.model";
+import User, { IUser } from "../models/user.model";
 import { cloudinary } from "../config/cloudinary";
 import { validateAndUpdateScore } from "../services/score.service";
-import { IUser } from "../models/user.model";
 import { AvatarService } from "../services/avatar.service";
+import { AppError } from "../utils/AppError";
 
 // Create user
 export const createUser = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { username, email, password, avatar } = req.body;
 
   try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return next(new AppError("User already exists", 400));
+    }
+
     let avatarUrl = avatar;
 
     if (req.files && (req.files as { avatar?: Express.Multer.File[] }).avatar) {
       const file = (req.files as { avatar: Express.Multer.File[] }).avatar[0];
-
-      // Use AvatarService to upload avatar
       avatarUrl = await AvatarService.uploadAvatar(file);
     }
 
@@ -28,66 +32,64 @@ export const createUser = async (
       email,
       password,
       avatar: avatarUrl,
-      stats: {
-        totalScore: 0,
-        totalGamesPlayed: 0,
-        achievements: [],
-      },
+      stats: { totalScore: 0, totalGamesPlayed: 0, achievements: [] },
       friends: [],
     });
 
     const savedUser = await user.save();
     res.status(201).json({ message: "User created", user: savedUser });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creating user", error });
+    next(error);
   }
 };
 
 // Get all users
-export const getAllUsers = async (_: Request, res: Response): Promise<void> => {
+export const getAllUsers = async (
+  _: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching users", error });
+    next(error);
   }
 };
 
 // Get user by ID
 export const getUserById = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { userId } = req.params;
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return next(new AppError("User not found", 404));
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching user", error });
+    next(error);
   }
 };
 
 // Update user
 export const updateUser = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { userId } = req.params;
   const { username, email, avatar } = req.body;
 
   try {
-    let avatarUrl = avatar; // If avatar URL is passed directly (not uploading an image)
+    let avatarUrl = avatar;
 
     if (req.files && (req.files as { avatar?: Express.Multer.File[] }).avatar) {
       const file = (req.files as { avatar: Express.Multer.File[] }).avatar[0];
-
-      // Use AvatarService to upload avatar
       avatarUrl = await AvatarService.uploadAvatar(file);
     }
 
@@ -98,53 +100,54 @@ export const updateUser = async (
     );
 
     if (!updatedUser) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return next(new AppError("User not found", 404));
     }
 
     res.status(200).json({ message: "User updated", user: updatedUser });
   } catch (error) {
-    res.status(500).json({ message: "Update failed", error });
+    next(error);
   }
 };
 
 // Delete user
 export const deleteUser = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { userId } = req.params;
 
   try {
     const user = await User.findByIdAndDelete(userId);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return next(new AppError("User not found", 404));
     }
 
     res.status(200).json({ message: "User deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting user", error });
+    next(error);
   }
 };
 
 // Add a friend (bi-directional)
-export const addFriend = async (req: Request, res: Response): Promise<void> => {
+export const addFriend = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const { userId } = req.params;
   const { friendId } = req.body;
 
   try {
     if (userId === friendId) {
-      res.status(400).json({ message: "You cannot add yourself as a friend." });
-      return;
+      return next(new AppError("You cannot add yourself as a friend.", 400));
     }
 
     const user = await User.findById(userId).exec();
     const friend = await User.findById(friendId).exec();
 
     if (!user || !friend) {
-      res.status(404).json({ message: "User or friend not found" });
-      return;
+      return next(new AppError("User or friend not found", 404));
     }
 
     if (!user.friends.includes(friend._id as Types.ObjectId)) {
@@ -159,29 +162,26 @@ export const addFriend = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ message: "Friend added", user });
   } catch (error) {
-    res.status(500).json({ message: "Failed to add friend", error });
+    next(error);
   }
 };
 
-// Update user stats (e.g. after a game)
+// Update user stats
 export const updateUserStats = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { userId } = req.params;
-  const { totalScore, totalGamesPlayed, achievements } = req.body;
+  const { totalScore, totalGamesPlayed, achievements, gameId } = req.body;
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return next(new AppError("User not found", 404));
     }
 
-    // Use the validateAndUpdateScore function to validate and update the score
-    await validateAndUpdateScore(userId, totalScore);
-
-    // Update total games played and achievements as well
+    await validateAndUpdateScore(userId, totalScore, gameId);
     user.stats.totalGamesPlayed += totalGamesPlayed || 0;
 
     if (achievements && Array.isArray(achievements)) {
@@ -191,14 +191,15 @@ export const updateUserStats = async (
     await user.save();
     res.status(200).json({ message: "Stats updated", user });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update stats", error });
+    next(error);
   }
 };
 
 // Get all friends of a user
 export const getUserFriends = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { userId } = req.params;
 
@@ -207,13 +208,11 @@ export const getUserFriends = async (
       "friends"
     );
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return next(new AppError("User not found", 404));
     }
 
     res.status(200).json(user.friends);
   } catch (error) {
-    console.error("Error fetching friends:", error);
-    res.status(500).json({ message: "Error fetching friends", error });
+    next(error);
   }
 };

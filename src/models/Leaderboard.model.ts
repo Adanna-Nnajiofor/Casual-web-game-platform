@@ -4,7 +4,7 @@ export interface ILeaderboard extends Document {
   gameId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   score: number;
-  username?: string; // Optional, if denormalized data is preferred
+  username?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,7 +26,7 @@ const leaderboardSchema = new Schema<ILeaderboard>(
       required: true,
     },
     username: {
-      type: String, // Optional for performance (denormalization)
+      type: String,
     },
   },
   {
