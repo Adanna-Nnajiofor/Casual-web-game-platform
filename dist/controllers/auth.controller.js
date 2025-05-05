@@ -46,7 +46,6 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.registerUser = registerUser;
 // LOGIN CONTROLLER
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Validate the login data using the loginSchema
     const validation = (0, validate_1.validate)(validate_2.loginSchema, req.body);
     if (!validation.success) {
         res.status(400).json({
@@ -55,17 +54,9 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         return;
     }
-    const { email, username, password } = validation.data;
-    // Choose identifier based on which one exists
-    const identifier = email || username;
-    if (!identifier || !password) {
-        res.status(400).json({
-            message: "Email or username and password are required for login",
-        });
-        return;
-    }
+    const { username, password } = validation.data;
     try {
-        const { token, user, welcomeMessage } = yield (0, auth_service_1.loginUserService)(identifier, password);
+        const { token, user, welcomeMessage } = yield (0, auth_service_1.loginUserService)(username, password);
         res.status(200).json({
             message: welcomeMessage,
             user: {
