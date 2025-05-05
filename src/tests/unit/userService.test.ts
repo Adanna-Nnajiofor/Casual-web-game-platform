@@ -40,8 +40,8 @@ describe("User Service", () => {
       email: `adanna_${Date.now()}@example.com`,
       password: "securepass",
     };
-
-    const user = await createUser(userData);
+    const gameId = "mock-game-id";
+    const user = await createUser(userData, gameId);
 
     expect(user).toHaveProperty("_id");
     expect(user.email).toBe(userData.email);
