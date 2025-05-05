@@ -19,21 +19,16 @@ exports.registerSchema = zod_1.z.object({
         .min(6, "Password must be at least 6 characters"),
 });
 // User login schema
-exports.loginSchema = zod_1.z
-    .object({
-    email: zod_1.z.string().email("Invalid email address").optional(),
+// LOGIN SCHEMA (Username-only)
+exports.loginSchema = zod_1.z.object({
     username: zod_1.z
         .string()
-        .min(3, "Username must be at least 3 characters")
-        .optional(),
+        .nonempty("Username is required")
+        .min(3, "Username must be at least 3 characters"),
     password: zod_1.z
         .string()
         .nonempty("Password is required")
         .min(6, "Password must be at least 6 characters"),
-})
-    .refine((data) => data.email || data.username, {
-    message: "Either email or username is required",
-    path: ["identifier"],
 });
 // Game session submission schema
 exports.sessionSchema = zod_1.z.object({

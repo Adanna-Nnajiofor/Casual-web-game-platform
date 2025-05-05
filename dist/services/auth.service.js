@@ -42,33 +42,23 @@ const registerUserService = (username, email, password) => __awaiter(void 0, voi
 });
 exports.registerUserService = registerUserService;
 // LOGIN SERVICE
-const loginUserService = (identifier, password) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // Check if the identifier is an email (simpler check)
-        const isEmail = identifier.includes("@") && identifier.includes(".");
-        const trimmedIdentifier = identifier.trim();
-        const user = yield user_model_1.default.findOne(isEmail ? { email: trimmedIdentifier } : { username: trimmedIdentifier });
-        // If no user is found (whether email or username), throw an error
-        if (!user) {
-            throw new Error(`User with ${isEmail ? "email" : "username"} "${identifier}" not found.`);
-        }
-        // Check if the password matches the hashed password
-        const isMatch = yield bcryptjs_1.default.compare(password, user.password);
-        if (!isMatch) {
-            throw new Error("Invalid credentials. Please check your password.");
-        }
-        // Generate JWT token for the user
-        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
-            expiresIn: "1h",
-        });
-        return {
-            token,
-            user,
-            welcomeMessage: `Welcome ${user.username}`,
-        };
+const loginUserService = (username, password) => __awaiter(void 0, void 0, void 0, function* () {
+    const trimmedUsername = username.trim();
+    const user = yield user_model_1.default.findOne({ username: trimmedUsername });
+    if (!user) {
+        throw new Error(`User with username "${username}" not found.`);
     }
-    catch (error) {
-        throw new Error(error.message || "An error occurred during login");
+    const isMatch = yield bcryptjs_1.default.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error("Invalid password");
     }
+    const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
+        expiresIn: "1h",
+    });
+    return {
+        token,
+        user,
+        welcomeMessage: `Welcome ${user.username}`,
+    };
 });
 exports.loginUserService = loginUserService;
