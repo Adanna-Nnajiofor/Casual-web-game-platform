@@ -7,7 +7,10 @@ import { validateAndUpdateScore } from "../services/score.service";
 // }
 
 // Create a new user
-export const createUser = async (data: CreateUserInput): Promise<IUser> => {
+export const createUser = async (
+  data: CreateUserInput,
+  gameId: string
+): Promise<IUser> => {
   const initialScore = 0;
 
   const user = new User({
@@ -22,7 +25,11 @@ export const createUser = async (data: CreateUserInput): Promise<IUser> => {
 
   try {
     const savedUser = await user.save();
-    await validateAndUpdateScore(savedUser._id.toString(), initialScore);
+    await validateAndUpdateScore(
+      savedUser._id.toString(),
+      initialScore,
+      gameId
+    );
     return savedUser;
   } catch (error) {
     console.error("Error creating user:", error);
@@ -134,13 +141,14 @@ export const updateUserStats = async (
   userId: string,
   totalScore: number,
   totalGamesPlayed: number,
-  achievements: string[]
+  achievements: string[],
+  gameId: string
 ): Promise<IUser | null> => {
   try {
     const user = await User.findById(userId);
     if (!user) throw new Error("User not found");
 
-    await validateAndUpdateScore(userId, totalScore);
+    await validateAndUpdateScore(userId, totalScore, gameId);
 
     user.stats.totalGamesPlayed += totalGamesPlayed;
     user.stats.achievements.push(...achievements);
