@@ -40,7 +40,6 @@ describe("User Service", () => {
       email: `adanna_${Date.now()}@example.com`,
       password: "securepass",
     };
-
     const gameId = "mock-game-id";
     const user = await createUser(userData, gameId);
 
