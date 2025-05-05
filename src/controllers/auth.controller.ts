@@ -46,7 +46,6 @@ export const registerUser: RequestHandler = async (req, res): Promise<void> => {
 
 // LOGIN CONTROLLER
 export const loginUser: RequestHandler = async (req, res): Promise<void> => {
-  // Validate the login data using the loginSchema
   const validation = validate(loginSchema, req.body);
 
   if (!validation.success) {
@@ -57,21 +56,11 @@ export const loginUser: RequestHandler = async (req, res): Promise<void> => {
     return;
   }
 
-  const { email, username, password } = validation.data!;
-
-  // Choose identifier based on which one exists
-  const identifier = email || username;
-
-  if (!identifier || !password) {
-    res.status(400).json({
-      message: "Email or username and password are required for login",
-    });
-    return;
-  }
+  const { username, password } = validation.data!;
 
   try {
     const { token, user, welcomeMessage } = await loginUserService(
-      identifier as string,
+      username,
       password
     );
 
