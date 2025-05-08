@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { createUser } from "../../services/user.service";
 import { CreateUserInput } from "../../types/user";
-import User from "../../models/user.model";
+// import User from "../../models/user.model";
 import "dotenv/config";
 
 jest.setTimeout(20000);
