@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Question } from '../models/question.model';
+// import { Question } from '../models/question.model';
 import { calculateScore } from '../utils/streetzScore';
 import type { LetterPointMap } from '../types/streetz';
 import { LetterPoint } from '../models/letterPoint.model';
