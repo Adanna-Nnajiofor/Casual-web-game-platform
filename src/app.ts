@@ -10,6 +10,9 @@ import friendsRoutes from "./routes/friends.routes";
 import feedbackRoutes from "./routes/feedback.routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
+import streetzGameRoutes from "./routes/streetz.routes";
+import connectDB  from "./config/db";
+import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
@@ -18,7 +21,11 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 // Middleware
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
-app.use(express.json());
+app.use(express.json()); // Middleware to parse JSON bodies
+
+app.use('/api', streetzRoutes);
+
+connectDB(); // Connect to MongoDB
 
 // Routes
 app.use("/auth", authRoutes);
@@ -28,6 +35,7 @@ app.use("/leaderboard", leaderboardRoutes);
 app.use("/user", userRoutes);
 app.use("/friends", friendsRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/streetz", streetzGameRoutes);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
