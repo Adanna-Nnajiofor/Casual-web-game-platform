@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AvatarService = void 0;
 const cloudinary_1 = require("cloudinary");
 const firebase_admin_1 = require("../config/firebase-admin");
+// import { IUser } from "../models/user.model";
 class AvatarService {
     /**
      * Upload avatar image to Cloudinary and return the image URL.

@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   avatar?: string;
+  lastLogin: Date;
   stats: {
     totalGamesPlayed: number;
     totalScore: number;
@@ -42,6 +43,10 @@ const UserSchema: Schema = new Schema(
     avatar: {
       type: String,
       default: "",
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
     },
     stats: {
       totalGamesPlayed: {

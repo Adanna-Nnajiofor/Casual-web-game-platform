@@ -4,6 +4,7 @@ export interface IGame extends Document {
   title: string;
   description: string;
   slug: string;
+  type: "trivia" | "streetz" | "web3";
   difficultyLevels: string[];
   isWeb3Enabled: boolean;
   assets?: {
@@ -28,6 +29,11 @@ const GameSchema: Schema = new Schema(
       required: true,
       unique: true,
       lowercase: true,
+    },
+    type: {
+      type: String,
+      enum: ["trivia", "streetz", "web3"],
+      required: true,
     },
     difficultyLevels: {
       type: [String],

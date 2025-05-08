@@ -56,6 +56,10 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         default: "",
     },
+    lastLogin: {
+        type: Date,
+        default: Date.now,
+    },
     stats: {
         totalGamesPlayed: {
             type: Number,

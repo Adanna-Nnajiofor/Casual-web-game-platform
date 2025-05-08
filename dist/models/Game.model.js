@@ -50,6 +50,11 @@ const GameSchema = new mongoose_1.Schema({
         unique: true,
         lowercase: true,
     },
+    type: {
+        type: String,
+        enum: ["trivia", "streetz", "web3"],
+        required: true,
+    },
     difficultyLevels: {
         type: [String],
         default: ["Easy", "Medium", "Hard"],

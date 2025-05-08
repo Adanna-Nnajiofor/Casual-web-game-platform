@@ -10,4 +10,5 @@ const rateLimiter_1 = require("../utils/rateLimiter");
 const router = express_1.default.Router();
 router.use(rateLimiter_1.rateLimiter);
 router.post("/sessions", auth_middleware_1.authenticate, session_controller_1.saveSession);
+router.get("/sessions/user/:userId", auth_middleware_1.authenticate, session_controller_1.getSessionsByUser);
 exports.default = router;

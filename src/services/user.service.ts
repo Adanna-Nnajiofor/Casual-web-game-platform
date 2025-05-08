@@ -1,15 +1,12 @@
 import { CreateUserInput } from "../types/user";
 import User, { IUser } from "../models/user.model";
 import { validateAndUpdateScore } from "../services/score.service";
-
-// export interface IUserPopulated extends Omit<IUser, "friends"> {
-//   friends: IUser[];
-// }
+// import { AvatarService } from "../services/avatar.service";
 
 // Create a new user
 export const createUser = async (
   data: CreateUserInput,
-  gameId: string
+  avatarUrl: string
 ): Promise<IUser> => {
   const initialScore = 0;
 
@@ -21,15 +18,12 @@ export const createUser = async (
       achievements: [],
     },
     friends: [],
+    avatar: avatarUrl,
   });
 
   try {
     const savedUser = await user.save();
-    await validateAndUpdateScore(
-      savedUser._id.toString(),
-      initialScore,
-      gameId
-    );
+    await validateAndUpdateScore(savedUser._id.toString(), initialScore, "");
     return savedUser;
   } catch (error) {
     console.error("Error creating user:", error);
@@ -46,7 +40,7 @@ export const getAllUsers = async (): Promise<IUser[]> => {
   }
 };
 
-// Get a single user by ID
+// Get user by ID
 export const getUserById = async (userId: string): Promise<IUser | null> => {
   try {
     const user = await User.findById(userId);
@@ -57,15 +51,16 @@ export const getUserById = async (userId: string): Promise<IUser | null> => {
   }
 };
 
-// Update user details (including avatar)
+// Update user details
 export const updateUser = async (
   userId: string,
-  data: Partial<CreateUserInput>
+  data: Partial<CreateUserInput>,
+  avatarUrl?: string
 ): Promise<IUser | null> => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { ...data } },
+      { $set: { ...data, avatar: avatarUrl } },
       { new: true }
     );
     if (!updatedUser) throw new Error("User not found");
@@ -75,35 +70,7 @@ export const updateUser = async (
   }
 };
 
-// Dedicated function to update avatar only
-export const updateAvatar = async (
-  userId: string,
-  avatarUrl: string
-): Promise<IUser | null> => {
-  try {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $set: { avatar: avatarUrl } },
-      { new: true }
-    );
-    if (!user) throw new Error("User not found");
-    return user;
-  } catch (error) {
-    throw new Error("Error updating avatar");
-  }
-};
-
-// Delete a user
-export const deleteUser = async (userId: string): Promise<void> => {
-  try {
-    const user = await User.findByIdAndDelete(userId);
-    if (!user) throw new Error("User not found");
-  } catch (error) {
-    throw new Error("Error deleting user");
-  }
-};
-
-// Add a friend (bi-directional relationship)
+// Add a friend (bi-directional)
 export const addFriend = async (
   userId: string,
   friendId: string
@@ -136,7 +103,7 @@ export const addFriend = async (
   }
 };
 
-// Update user stats (e.g., after a game)
+// Update user stats
 export const updateUserStats = async (
   userId: string,
   totalScore: number,
@@ -169,7 +136,18 @@ export const getUserFriends = async (userId: string): Promise<IUser[]> => {
     if (!user) throw new Error("User not found");
     return user.friends;
   } catch (error) {
-    console.error("Error fetching friends:", error);
     throw new Error("Error fetching friends");
+  }
+};
+
+// Delete user by ID
+export const deleteUser = async (userId: string): Promise<void> => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      throw new Error("User not found");
+    }
+  } catch (error) {
+    throw new Error("Error deleting user");
   }
 };

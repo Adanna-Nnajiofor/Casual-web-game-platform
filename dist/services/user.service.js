@@ -12,23 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserFriends = exports.updateUserStats = exports.addFriend = exports.deleteUser = exports.updateAvatar = exports.updateUser = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
+exports.deleteUser = exports.getUserFriends = exports.updateUserStats = exports.addFriend = exports.updateUser = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const score_service_1 = require("../services/score.service");
-// export interface IUserPopulated extends Omit<IUser, "friends"> {
-//   friends: IUser[];
-// }
+// import { AvatarService } from "../services/avatar.service";
 // Create a new user
-const createUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (data, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
     const initialScore = 0;
     const user = new user_model_1.default(Object.assign(Object.assign({}, data), { stats: {
             totalScore: initialScore,
             totalGamesPlayed: 0,
             achievements: [],
-        }, friends: [] }));
+        }, friends: [], avatar: avatarUrl }));
     try {
         const savedUser = yield user.save();
-        yield (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore);
+        yield (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore, "");
         return savedUser;
     }
     catch (error) {
@@ -47,7 +45,7 @@ const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAllUsers = getAllUsers;
-// Get a single user by ID
+// Get user by ID
 const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_model_1.default.findById(userId);
@@ -60,10 +58,10 @@ const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUserById = getUserById;
-// Update user details (including avatar)
-const updateUser = (userId, data) => __awaiter(void 0, void 0, void 0, function* () {
+// Update user details
+const updateUser = (userId, data, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign({}, data) }, { new: true });
+        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign(Object.assign({}, data), { avatar: avatarUrl }) }, { new: true });
         if (!updatedUser)
             throw new Error("User not found");
         return updatedUser;
@@ -73,32 +71,7 @@ const updateUser = (userId, data) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updateUser = updateUser;
-// Dedicated function to update avatar only
-const updateAvatar = (userId, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_model_1.default.findByIdAndUpdate(userId, { $set: { avatar: avatarUrl } }, { new: true });
-        if (!user)
-            throw new Error("User not found");
-        return user;
-    }
-    catch (error) {
-        throw new Error("Error updating avatar");
-    }
-});
-exports.updateAvatar = updateAvatar;
-// Delete a user
-const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_model_1.default.findByIdAndDelete(userId);
-        if (!user)
-            throw new Error("User not found");
-    }
-    catch (error) {
-        throw new Error("Error deleting user");
-    }
-});
-exports.deleteUser = deleteUser;
-// Add a friend (bi-directional relationship)
+// Add a friend (bi-directional)
 const addFriend = (userId, friendId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (userId === friendId) {
@@ -124,13 +97,13 @@ const addFriend = (userId, friendId) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.addFriend = addFriend;
-// Update user stats (e.g., after a game)
-const updateUserStats = (userId, totalScore, totalGamesPlayed, achievements) => __awaiter(void 0, void 0, void 0, function* () {
+// Update user stats
+const updateUserStats = (userId, totalScore, totalGamesPlayed, achievements, gameId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_model_1.default.findById(userId);
         if (!user)
             throw new Error("User not found");
-        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore);
+        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore, gameId);
         user.stats.totalGamesPlayed += totalGamesPlayed;
         user.stats.achievements.push(...achievements);
         yield user.save();
@@ -150,8 +123,20 @@ const getUserFriends = (userId) => __awaiter(void 0, void 0, void 0, function* (
         return user.friends;
     }
     catch (error) {
-        console.error("Error fetching friends:", error);
         throw new Error("Error fetching friends");
     }
 });
 exports.getUserFriends = getUserFriends;
+// Delete user by ID
+const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const deletedUser = yield user_model_1.default.findByIdAndDelete(userId);
+        if (!deletedUser) {
+            throw new Error("User not found");
+        }
+    }
+    catch (error) {
+        throw new Error("Error deleting user");
+    }
+});
+exports.deleteUser = deleteUser;

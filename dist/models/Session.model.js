@@ -68,5 +68,8 @@ const SessionSchema = new mongoose_1.Schema({
     endedAt: {
         type: Date,
     },
+    gameData: {
+        type: mongoose_1.Schema.Types.Mixed,
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Session", SessionSchema);

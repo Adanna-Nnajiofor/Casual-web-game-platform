@@ -1,140 +1,142 @@
 import { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
-import Leaderboard from "../models/Leaderboard.model";
-import Game from "../models/Game.model";
-import User from "../models/user.model";
+import {
+  getLeaderboardService,
+  postScoreService,
+  getFriendLeaderboardService,
+  getUserScoreService,
+  getUserRankService,
+} from "../services/leaderboard.service";
 import { AppError } from "../utils/AppError";
 
-// GET leaderboard for a specific game with pagination (public)
+// Controller to fetch the leaderboard for a specific game, with pagination support
 export const getLeaderboard = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   const { gameId } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
-  if (!mongoose.Types.ObjectId.isValid(gameId)) {
-    return next(new AppError("Invalid game ID", 400));
-  }
-
-  const parsedPage = Number(page);
-  const parsedLimit = Number(limit);
-
-  if (isNaN(parsedPage) || parsedPage < 1) {
-    return next(new AppError("Page must be a positive number", 400));
-  }
-
-  if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-    return next(new AppError("Limit must be a number between 1 and 100", 400));
-  }
-
   try {
-    const leaderboard = await Leaderboard.find({ gameId })
-      .populate("userId", "username")
-      .sort({ score: -1 })
-      .skip((parsedPage - 1) * parsedLimit)
-      .limit(parsedLimit);
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+
+    // Validate pagination parameters
+    if (
+      isNaN(parsedPage) ||
+      parsedPage < 1 ||
+      isNaN(parsedLimit) ||
+      parsedLimit < 1 ||
+      parsedLimit > 100
+    ) {
+      throw new AppError("Invalid pagination parameters", 400);
+    }
+
+    // Fetch the leaderboard from the service
+    const leaderboard = await getLeaderboardService(
+      gameId,
+      parsedPage,
+      parsedLimit
+    );
 
     res.json(leaderboard);
   } catch (err) {
-    next(new AppError("Failed to fetch leaderboard", 500));
+    next(err);
   }
 };
 
-// POST a new score to the leaderboard (authenticated users only)
+// Controller to post a score for a user in a specific game
 export const postScore = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     const { gameId, score } = req.body;
     const userId = req.user?._id;
 
-    // Validate user
-    if (!userId) return next(new AppError("Unauthorized", 401));
+    if (!userId) throw new AppError("Unauthorized", 401);
 
-    // Validate gameId format
-    if (!mongoose.Types.ObjectId.isValid(gameId)) {
-      return next(new AppError("Invalid game ID", 400));
-    }
-
-    // Validate score
-    if (typeof score !== "number" || score < 0) {
-      return next(new AppError("Score must be a non-negative number", 400));
-    }
-
-    const game = await Game.findById(gameId);
-    if (!game) return next(new AppError("Game not found", 404));
-
-    const updatedScore = await Leaderboard.findOneAndUpdate(
-      { gameId, userId },
-      { $max: { score } },
-      { upsert: true, new: true }
-    );
-
+    const updatedScore = await postScoreService(gameId, score, userId);
     res.status(201).json(updatedScore);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-// GET friend leaderboard for a specific game (filter by user's friends list)
+// Controller to get the leaderboard for the user's friends
 export const getFriendLeaderboard = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   const { gameId } = req.params;
   const { page = 1, limit = 10 } = req.query;
   const userId = req.user?._id;
 
-  // Validate gameId format
-  if (!mongoose.Types.ObjectId.isValid(gameId)) {
-    return next(new AppError("Invalid game ID", 400));
-  }
-
-  // Validate page and limit
-  const parsedPage = Number(page);
-  const parsedLimit = Number(limit);
-
-  if (isNaN(parsedPage) || parsedPage < 1) {
-    return next(new AppError("Page must be a positive number", 400));
-  }
-
-  if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-    return next(new AppError("Limit must be a number between 1 and 100", 400));
-  }
-
   try {
-    if (!userId) {
-      return next(new AppError("Unauthorized", 401));
+    if (!userId) throw new AppError("Unauthorized", 401);
+
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+
+    // Validate pagination parameters
+    if (
+      isNaN(parsedPage) ||
+      parsedPage < 1 ||
+      isNaN(parsedLimit) ||
+      parsedLimit < 1 ||
+      parsedLimit > 100
+    ) {
+      throw new AppError("Invalid pagination parameters", 400);
     }
 
-    const userDoc = await User.findById(userId);
-    if (!userDoc) {
-      return next(new AppError("User not found", 404));
-    }
-
-    const friendsList = userDoc.friends || [];
-
-    if (friendsList.length === 0) {
-      res.status(200).json([]);
-      return;
-    }
-
-    const leaderboard = await Leaderboard.find({
+    // Fetch the friend's leaderboard from the service
+    const leaderboard = await getFriendLeaderboardService(
       gameId,
-      userId: { $in: friendsList },
-    })
-      .populate("userId", "username")
-      .sort({ score: -1 })
-      .skip((parsedPage - 1) * parsedLimit)
-      .limit(parsedLimit);
+      parsedPage,
+      parsedLimit,
+      userId
+    );
 
     res.json(leaderboard);
   } catch (err) {
-    next(new AppError("Failed to fetch friend leaderboard", 500));
+    next(err);
+  }
+};
+
+// Controller to fetch the score of a specific user for a game
+export const getUserScore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { gameId } = req.params;
+  const userId = req.user?._id;
+
+  try {
+    if (!userId) throw new AppError("Unauthorized", 401);
+    const data = await getUserScoreService(gameId, userId);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Controller to fetch the rank of a specific user for a game
+export const getUserRank = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { gameId } = req.params;
+  const userId = req.user?._id;
+
+  try {
+    if (!userId) throw new AppError("Unauthorized", 401);
+    const rankData = await getUserRankService(gameId, userId);
+    res.json(rankData);
+  } catch (err) {
+    next(err);
   }
 };

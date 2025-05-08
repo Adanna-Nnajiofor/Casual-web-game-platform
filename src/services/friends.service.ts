@@ -57,3 +57,43 @@ export const acceptFriendRequest = async (
   // Add both users to each other's friend lists
   await addFriend(userId, requestedUserId);
 };
+
+// Cancel a friend request
+export const cancelFriendRequest = async (
+  userId: string,
+  requestedUserId: string
+) => {
+  const friendRequestRef = db.collection("friend_requests").doc(userId);
+  const doc = await friendRequestRef.get();
+
+  if (!doc.exists) {
+    throw new Error("Friend request not found");
+  }
+
+  const data = doc.data();
+  if (data?.requestedUserId !== requestedUserId || data?.status !== "pending") {
+    throw new Error("Cannot cancel this request");
+  }
+
+  await friendRequestRef.delete();
+};
+
+// Get online friends
+export const getOnlineFriends = async (userId: string) => {
+  const userFriendsRef = db.collection("friends").doc(userId);
+  const userFriendsDoc = await userFriendsRef.get();
+
+  if (!userFriendsDoc.exists) return [];
+
+  const friendIds: string[] = userFriendsDoc.data()?.friends || [];
+
+  if (friendIds.length === 0) return [];
+
+  const usersRef = db.collection("users");
+  const onlineFriendsSnapshot = await usersRef
+    .where("status", "==", "online")
+    .where("uid", "in", friendIds)
+    .get();
+
+  return onlineFriendsSnapshot.docs.map((doc) => doc.data());
+};

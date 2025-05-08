@@ -1,30 +1,39 @@
 import { z } from "zod";
 
 // User registration schema
-export const registerSchema = z.object({
-  username: z
-    .string()
-    .nonempty("Username is required")
-    .min(3, "Username must be at least 3 characters"),
+export const registerSchema = z
+  .object({
+    username: z
+      .string()
+      .nonempty("Username is required")
+      .min(3, "Username must be at least 3 characters"),
 
-  email: z
-    .string()
-    .nonempty("Email is required")
-    .email("Invalid email address"),
+    email: z
+      .string()
+      .nonempty("Email is required")
+      .email("Invalid email address"),
 
-  password: z
-    .string()
-    .nonempty("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+    password: z
+      .string()
+      .nonempty("Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .regex(/[A-Za-z]/, "Password must contain at least one letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+
+    confirmPassword: z.string().nonempty("Confirm Password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
 
 // User login schema
-// LOGIN SCHEMA (Username-only)
 export const loginSchema = z.object({
   username: z
     .string()
     .nonempty("Username is required")
     .min(3, "Username must be at least 3 characters"),
+
   password: z
     .string()
     .nonempty("Password is required")

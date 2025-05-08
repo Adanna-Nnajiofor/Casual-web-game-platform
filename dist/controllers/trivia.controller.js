@@ -10,12 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.submitAnswers = exports.getQuestions = void 0;
-const Question_model_1 = require("../models/Question.model");
-const score_utils_1 = require("../utils/score.utils");
+const trivia_service_1 = require("../services/trivia.service");
+// Fetch questions for the game
 const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category = "Music", count = 5 } = req.query;
     try {
-        const questions = yield Question_model_1.QuestionModel.getRandomQuestionsByCategory(String(category), Number(count));
+        // Call TriviaService to fetch questions
+        const questions = yield trivia_service_1.TriviaService.fetchQuestions(String(category), Number(count));
         res.status(200).json(questions);
     }
     catch (err) {
@@ -23,10 +24,12 @@ const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getQuestions = getQuestions;
+// Submit answers and evaluate score
 const submitAnswers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { answers } = req.body;
+    const { answers } = req.body; // [{ questionId, selected }]
     try {
-        const results = yield (0, score_utils_1.calculateTriviaScore)(answers);
+        // Call TriviaService to evaluate answers and calculate the score
+        const results = yield trivia_service_1.TriviaService.evaluateAnswers(answers);
         res.status(200).json(results);
     }
     catch (err) {
