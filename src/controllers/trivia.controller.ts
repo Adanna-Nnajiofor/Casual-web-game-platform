@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { QuestionModel } from "../models/Question.model";
+import { QuestionModel } from "../models/question.model";
 import { calculateTriviaScore } from "../utils/score.utils";
 
 export const getQuestions = async (req: Request, res: Response) => {
