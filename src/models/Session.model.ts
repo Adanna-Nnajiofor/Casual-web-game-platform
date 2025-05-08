@@ -9,6 +9,7 @@ export interface ISession extends Document {
   completed: boolean;
   startedAt: Date;
   endedAt?: Date;
+  gameData?: Record<string, any>;
 }
 
 const SessionSchema: Schema = new Schema(
@@ -45,6 +46,9 @@ const SessionSchema: Schema = new Schema(
     },
     endedAt: {
       type: Date,
+    },
+    gameData: {
+      type: Schema.Types.Mixed,
     },
   },
   { timestamps: true }

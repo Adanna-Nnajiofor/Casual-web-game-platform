@@ -1,8 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { IUser } from "./user.model";
 
 export interface ILeaderboard extends Document {
   gameId: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId | IUser;
   score: number;
   username?: string;
   createdAt: Date;

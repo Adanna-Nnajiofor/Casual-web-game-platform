@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { db } from "../config/firebase-admin";
-import { IUser } from "../models/user.model";
+// import { IUser } from "../models/user.model";
 
 export class AvatarService {
   /**

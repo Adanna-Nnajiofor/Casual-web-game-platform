@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFriendLeaderboard = exports.postScore = exports.getLeaderboard = void 0;
+exports.getUserRank = exports.getUserScore = exports.getFriendLeaderboard = exports.postScore = exports.getLeaderboard = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const Leaderboard_model_1 = __importDefault(require("../models/Leaderboard.model"));
 const Game_model_1 = __importDefault(require("../models/Game.model"));
@@ -52,14 +52,11 @@ const postScore = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     try {
         const { gameId, score } = req.body;
         const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-        // Validate user
         if (!userId)
             return next(new AppError_1.AppError("Unauthorized", 401));
-        // Validate gameId format
         if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
             return next(new AppError_1.AppError("Invalid game ID", 400));
         }
-        // Validate score
         if (typeof score !== "number" || score < 0) {
             return next(new AppError_1.AppError("Score must be a non-negative number", 400));
         }
@@ -80,11 +77,9 @@ const getFriendLeaderboard = (req, res, next) => __awaiter(void 0, void 0, void 
     const { gameId } = req.params;
     const { page = 1, limit = 10 } = req.query;
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    // Validate gameId format
     if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
         return next(new AppError_1.AppError("Invalid game ID", 400));
     }
-    // Validate page and limit
     const parsedPage = Number(page);
     const parsedLimit = Number(limit);
     if (isNaN(parsedPage) || parsedPage < 1) {
@@ -121,3 +116,70 @@ const getFriendLeaderboard = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 exports.getFriendLeaderboard = getFriendLeaderboard;
+// GET a specific user's score for a particular game
+const getUserScore = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { gameId } = req.params;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
+        return next(new AppError_1.AppError("Invalid game ID", 400));
+    }
+    if (!userId) {
+        return next(new AppError_1.AppError("Unauthorized", 401));
+    }
+    try {
+        const leaderboardEntry = yield Leaderboard_model_1.default.findOne({ gameId, userId })
+            .populate("userId", "username")
+            .select("score userId");
+        if (!leaderboardEntry || !leaderboardEntry.userId) {
+            return next(new AppError_1.AppError("User not found on leaderboard for this game", 404));
+        }
+        const user = leaderboardEntry.userId;
+        if (typeof user === "object" && "username" in user) {
+            res.json({
+                username: user.username,
+                score: leaderboardEntry.score,
+            });
+        }
+        else {
+            return next(new AppError_1.AppError("Failed to fetch user information", 500));
+        }
+    }
+    catch (err) {
+        next(new AppError_1.AppError("Failed to fetch user's score", 500));
+    }
+});
+exports.getUserScore = getUserScore;
+// GET user's rank in the leaderboard for a specific game
+const getUserRank = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { gameId } = req.params;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    if (!mongoose_1.default.Types.ObjectId.isValid(gameId)) {
+        return next(new AppError_1.AppError("Invalid game ID", 400));
+    }
+    if (!userId) {
+        return next(new AppError_1.AppError("Unauthorized", 401));
+    }
+    try {
+        const leaderboard = yield Leaderboard_model_1.default.find({ gameId })
+            .populate("userId", "username")
+            .sort({ score: -1 });
+        const userRank = leaderboard.findIndex((entry) => typeof entry.userId === "object" &&
+            "_id" in entry.userId &&
+            entry.userId._id.toString() === userId.toString());
+        if (userRank === -1) {
+            return next(new AppError_1.AppError("User not found on leaderboard", 404));
+        }
+        const user = leaderboard[userRank].userId;
+        res.json({
+            username: user.username,
+            rank: userRank + 1,
+            score: leaderboard[userRank].score,
+        });
+    }
+    catch (err) {
+        next(new AppError_1.AppError("Failed to fetch user rank", 500));
+    }
+});
+exports.getUserRank = getUserRank;

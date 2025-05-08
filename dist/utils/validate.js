@@ -4,7 +4,8 @@ exports.sessionSchema = exports.loginSchema = exports.registerSchema = void 0;
 exports.validate = validate;
 const zod_1 = require("zod");
 // User registration schema
-exports.registerSchema = zod_1.z.object({
+exports.registerSchema = zod_1.z
+    .object({
     username: zod_1.z
         .string()
         .nonempty("Username is required")
@@ -16,10 +17,16 @@ exports.registerSchema = zod_1.z.object({
     password: zod_1.z
         .string()
         .nonempty("Password is required")
-        .min(6, "Password must be at least 6 characters"),
+        .min(6, "Password must be at least 6 characters")
+        .regex(/[A-Za-z]/, "Password must contain at least one letter")
+        .regex(/[0-9]/, "Password must contain at least one number"),
+    confirmPassword: zod_1.z.string().nonempty("Confirm Password is required"),
+})
+    .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
 });
 // User login schema
-// LOGIN SCHEMA (Username-only)
 exports.loginSchema = zod_1.z.object({
     username: zod_1.z
         .string()
