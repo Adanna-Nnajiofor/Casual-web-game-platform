@@ -5,8 +5,11 @@ import {
   postScore,
   getFriendLeaderboard,
 } from "../controllers/leaderboard.controller";
+import { rateLimiter } from "../utils/rateLimiter";
 
 const router = express.Router();
+
+router.use(rateLimiter);
 
 //  GET leaderboard for a specific game (public)
 router.get("/:gameId", getLeaderboard);

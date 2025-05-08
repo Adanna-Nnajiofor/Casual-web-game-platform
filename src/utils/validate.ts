@@ -19,22 +19,17 @@ export const registerSchema = z.object({
 });
 
 // User login schema
-export const loginSchema = z
-  .object({
-    email: z.string().email("Invalid email address").optional(),
-    username: z
-      .string()
-      .min(3, "Username must be at least 3 characters")
-      .optional(),
-    password: z
-      .string()
-      .nonempty("Password is required")
-      .min(6, "Password must be at least 6 characters"),
-  })
-  .refine((data) => data.email || data.username, {
-    message: "Either email or username is required",
-    path: ["identifier"],
-  });
+// LOGIN SCHEMA (Username-only)
+export const loginSchema = z.object({
+  username: z
+    .string()
+    .nonempty("Username is required")
+    .min(3, "Username must be at least 3 characters"),
+  password: z
+    .string()
+    .nonempty("Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
 
 // Game session submission schema
 export const sessionSchema = z.object({

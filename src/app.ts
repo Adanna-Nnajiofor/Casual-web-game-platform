@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import path from "path";
+import { errorHandler } from "./middlewares/error.handler";
 import authRoutes from "./routes/auth.routes";
 import gameRoutes from "./routes/game.routes";
 import sessionRoutes from "./routes/session.routes";
@@ -8,6 +9,7 @@ import leaderboardRoutes from "./routes/leaderboard.routes";
 import userRoutes from "./routes/user.routes";
 import friendsRoutes from "./routes/friends.routes";
 import feedbackRoutes from "./routes/feedback.routes";
+import triviaRoutes from "./routes/trivia.routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import streetzGameRoutes from "./routes/streetz.routes";
@@ -35,7 +37,6 @@ app.use("/leaderboard", leaderboardRoutes);
 app.use("/user", userRoutes);
 app.use("/friends", friendsRoutes);
 app.use("/feedback", feedbackRoutes);
-app.use("/streetz", streetzGameRoutes);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

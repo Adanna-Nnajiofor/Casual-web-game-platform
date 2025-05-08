@@ -19,9 +19,9 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         res.status(401).json({ message: "No token provided" });
-        return; // Return here to prevent continuing to the next middleware
+        return;
     }
-    const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+    const token = authHeader.split(" ")[1];
     // First, try verifying as JWT token
     try {
         const secret = process.env.JWT_SECRET || "testsecret";
@@ -29,16 +29,16 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         // Check if the JWT token is expired
         if (decodedJwt.exp && decodedJwt.exp < Math.floor(Date.now() / 1000)) {
             res.status(401).json({ message: "JWT token has expired" });
-            return; // Return here to prevent continuing to the next middleware
+            return;
         }
-        req.user = decodedJwt; // If valid JWT, assign decoded user data
-        return next(); // Continue to next middleware or route handler
+        req.user = decodedJwt;
+        return next();
     }
     catch (jwtError) {
         // If JWT verification fails, proceed to try Firebase token
         if (jwtError.name === "TokenExpiredError") {
             res.status(401).json({ message: "JWT token has expired" });
-            return; // Return here to prevent continuing to the next middleware
+            return;
         }
     }
     // If JWT verification fails, try verifying as Firebase token
@@ -48,21 +48,20 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             .verifyIdToken(token);
         // Check if the Firebase token is expired (Firebase tokens are valid for 1 hour)
         const issuedAt = decodedFirebaseToken.auth_time;
-        const expirationTime = 3600; // Firebase tokens expire after 1 hour
+        const expirationTime = 3600;
         if (Math.floor(Date.now() / 1000) - issuedAt > expirationTime) {
             res.status(401).json({ message: "Firebase token has expired" });
-            return; // Return here to prevent continuing to the next middleware
+            return;
         }
-        req.user = decodedFirebaseToken; // If valid Firebase token, assign decoded token data
-        return next(); // Continue to next middleware or route handler
+        req.user = decodedFirebaseToken;
+        return next();
     }
     catch (firebaseError) {
-        // If both JWT and Firebase verification fail, return 401 Unauthorized
         res.status(401).json({
             message: "Invalid token",
             error: firebaseError.message || "Unknown error",
         });
-        return; // Return here to prevent continuing to the next middleware
+        return;
     }
 });
 exports.authenticate = authenticate;

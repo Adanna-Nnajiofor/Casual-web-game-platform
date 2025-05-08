@@ -9,8 +9,11 @@ import {
   getUserFriends,
 } from "../controllers/user.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import { rateLimiter } from "../utils/rateLimiter";
 
 const router = express.Router();
+
+router.use(rateLimiter);
 
 // Protected/User-specific routes
 router.get("/", getAllUsers);
