@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -15,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticate = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const firebase_admin_1 = require("../config/firebase-admin");
-const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         res.status(401).json({ message: "No token provided" });
@@ -43,7 +34,7 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     // If JWT verification fails, try verifying as Firebase token
     try {
-        const decodedFirebaseToken = yield firebase_admin_1.admin
+        const decodedFirebaseToken = await firebase_admin_1.admin
             .auth()
             .verifyIdToken(token);
         // Check if the Firebase token is expired (Firebase tokens are valid for 1 hour)
@@ -63,5 +54,5 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         });
         return;
     }
-});
+};
 exports.authenticate = authenticate;

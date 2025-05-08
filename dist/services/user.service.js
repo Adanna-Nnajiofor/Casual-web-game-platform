@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,7 +10,7 @@ const score_service_1 = require("../services/score.service");
 //   friends: IUser[];
 // }
 // Create a new user
-const createUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = async (data, gameId) => {
     const initialScore = 0;
     const user = new user_model_1.default(Object.assign(Object.assign({}, data), { stats: {
             totalScore: initialScore,
@@ -27,30 +18,30 @@ const createUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
             achievements: [],
         }, friends: [] }));
     try {
-        const savedUser = yield user.save();
-        yield (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore);
+        const savedUser = await user.save();
+        await (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore, gameId);
         return savedUser;
     }
     catch (error) {
         console.error("Error creating user:", error);
         throw new Error("User creation failed.");
     }
-});
+};
 exports.createUser = createUser;
 // Get all users
-const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+const getAllUsers = async () => {
     try {
-        return yield user_model_1.default.find();
+        return await user_model_1.default.find();
     }
     catch (error) {
         throw new Error("Error fetching users");
     }
-});
+};
 exports.getAllUsers = getAllUsers;
 // Get a single user by ID
-const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserById = async (userId) => {
     try {
-        const user = yield user_model_1.default.findById(userId);
+        const user = await user_model_1.default.findById(userId);
         if (!user)
             throw new Error("User not found");
         return user;
@@ -58,12 +49,12 @@ const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         throw new Error(`Error fetching user with id ${userId}`);
     }
-});
+};
 exports.getUserById = getUserById;
 // Update user details (including avatar)
-const updateUser = (userId, data) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = async (userId, data) => {
     try {
-        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign({}, data) }, { new: true });
+        const updatedUser = await user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign({}, data) }, { new: true });
         if (!updatedUser)
             throw new Error("User not found");
         return updatedUser;
@@ -71,12 +62,12 @@ const updateUser = (userId, data) => __awaiter(void 0, void 0, void 0, function*
     catch (error) {
         throw new Error("Error updating user");
     }
-});
+};
 exports.updateUser = updateUser;
 // Dedicated function to update avatar only
-const updateAvatar = (userId, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
+const updateAvatar = async (userId, avatarUrl) => {
     try {
-        const user = yield user_model_1.default.findByIdAndUpdate(userId, { $set: { avatar: avatarUrl } }, { new: true });
+        const user = await user_model_1.default.findByIdAndUpdate(userId, { $set: { avatar: avatarUrl } }, { new: true });
         if (!user)
             throw new Error("User not found");
         return user;
@@ -84,67 +75,67 @@ const updateAvatar = (userId, avatarUrl) => __awaiter(void 0, void 0, void 0, fu
     catch (error) {
         throw new Error("Error updating avatar");
     }
-});
+};
 exports.updateAvatar = updateAvatar;
 // Delete a user
-const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteUser = async (userId) => {
     try {
-        const user = yield user_model_1.default.findByIdAndDelete(userId);
+        const user = await user_model_1.default.findByIdAndDelete(userId);
         if (!user)
             throw new Error("User not found");
     }
     catch (error) {
         throw new Error("Error deleting user");
     }
-});
+};
 exports.deleteUser = deleteUser;
 // Add a friend (bi-directional relationship)
-const addFriend = (userId, friendId) => __awaiter(void 0, void 0, void 0, function* () {
+const addFriend = async (userId, friendId) => {
     try {
         if (userId === friendId) {
             throw new Error("You cannot add yourself as a friend.");
         }
-        const user = yield user_model_1.default.findById(userId);
-        const friend = yield user_model_1.default.findById(friendId);
+        const user = await user_model_1.default.findById(userId);
+        const friend = await user_model_1.default.findById(friendId);
         if (!user || !friend) {
             throw new Error("User or friend not found");
         }
         if (!user.friends.includes(friend._id)) {
             user.friends.push(friend._id);
-            yield user.save();
+            await user.save();
         }
         if (!friend.friends.includes(user._id)) {
             friend.friends.push(user._id);
-            yield friend.save();
+            await friend.save();
         }
         return user;
     }
     catch (error) {
         throw new Error("Failed to add friend");
     }
-});
+};
 exports.addFriend = addFriend;
 // Update user stats (e.g., after a game)
-const updateUserStats = (userId, totalScore, totalGamesPlayed, achievements) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserStats = async (userId, totalScore, totalGamesPlayed, achievements, gameId) => {
     try {
-        const user = yield user_model_1.default.findById(userId);
+        const user = await user_model_1.default.findById(userId);
         if (!user)
             throw new Error("User not found");
-        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore);
+        await (0, score_service_1.validateAndUpdateScore)(userId, totalScore, gameId);
         user.stats.totalGamesPlayed += totalGamesPlayed;
         user.stats.achievements.push(...achievements);
-        yield user.save();
+        await user.save();
         return user;
     }
     catch (error) {
         throw new Error("Failed to update stats");
     }
-});
+};
 exports.updateUserStats = updateUserStats;
 // Get all friends of a user
-const getUserFriends = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserFriends = async (userId) => {
     try {
-        const user = yield user_model_1.default.findById(userId).populate("friends");
+        const user = await user_model_1.default.findById(userId).populate("friends");
         if (!user)
             throw new Error("User not found");
         return user.friends;
@@ -153,5 +144,5 @@ const getUserFriends = (userId) => __awaiter(void 0, void 0, void 0, function* (
         console.error("Error fetching friends:", error);
         throw new Error("Error fetching friends");
     }
-});
+};
 exports.getUserFriends = getUserFriends;
