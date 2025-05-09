@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { createUser } from "../../services/user.service";
 import { CreateUserInput } from "../../types/user";
-import User from "../../models/user.model";
+// import User from "../../models/user.model";
 import "dotenv/config";
 
 jest.setTimeout(20000);
@@ -40,7 +40,6 @@ describe("User Service", () => {
       email: `adanna_${Date.now()}@example.com`,
       password: "securepass",
     };
-
     const gameId = "mock-game-id";
     const user = await createUser(userData, gameId);
 

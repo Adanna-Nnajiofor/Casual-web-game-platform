@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { TriviaService } from "../services/trivia.service";
+// import { QuestionModel } from "../models/question.model";
+// import { calculateTriviaScore } from "../utils/score.utils";
 
 // Fetch questions for the game
 export const getQuestions = async (req: Request, res: Response) => {

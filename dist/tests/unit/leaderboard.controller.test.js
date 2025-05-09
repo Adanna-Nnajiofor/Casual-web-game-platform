@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -38,25 +29,25 @@ jest.mock("../../models/Game.model.ts", () => ({
 }));
 describe("Leaderboard Controller", () => {
     afterEach(() => jest.clearAllMocks());
-    it("should fetch the leaderboard", () => __awaiter(void 0, void 0, void 0, function* () {
+    it("should fetch the leaderboard", async () => {
         const mockQuery = {
             populate: jest.fn().mockReturnThis(),
             sort: jest.fn().mockReturnThis(),
             limit: jest.fn().mockResolvedValue([{ score: 100 }]),
         };
         Leaderboard_model_1.default.find.mockReturnValue(mockQuery);
-        const res = yield (0, supertest_1.default)(app_1.default).get("/leaderboard/game123");
+        const res = await (0, supertest_1.default)(app_1.default).get("/leaderboard/game123");
         expect(res.status).toBe(200);
         expect(res.body[0].score).toBe(100);
-    }));
-    it("should post a new score", () => __awaiter(void 0, void 0, void 0, function* () {
+    });
+    it("should post a new score", async () => {
         Game_model_1.default.findById.mockResolvedValue(true);
         Leaderboard_model_1.default.create.mockResolvedValue({ score: 200 });
-        const res = yield (0, supertest_1.default)(app_1.default)
+        const res = await (0, supertest_1.default)(app_1.default)
             .post("/leaderboard")
             .set("Authorization", "Bearer dummy-token")
             .send({ gameId: "game123", score: 200 });
         expect(res.status).toBe(201);
         expect(res.body.score).toBe(200);
-    }));
+    });
 });
