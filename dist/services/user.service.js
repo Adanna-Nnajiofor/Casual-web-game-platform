@@ -8,11 +8,7 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const score_service_1 = require("../services/score.service");
 // import { AvatarService } from "../services/avatar.service";
 // Create a new user
-<<<<<<< HEAD
-const createUser = (data, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
-=======
-const createUser = async (data, gameId) => {
->>>>>>> game-one
+const createUser = async (data, avatarUrl) => {
     const initialScore = 0;
     const user = new user_model_1.default(Object.assign(Object.assign({}, data), { stats: {
             totalScore: initialScore,
@@ -20,13 +16,8 @@ const createUser = async (data, gameId) => {
             achievements: [],
         }, friends: [], avatar: avatarUrl }));
     try {
-<<<<<<< HEAD
-        const savedUser = yield user.save();
-        yield (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore, "");
-=======
         const savedUser = await user.save();
-        await (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore, gameId);
->>>>>>> game-one
+        await (0, score_service_1.validateAndUpdateScore)(savedUser._id.toString(), initialScore, "");
         return savedUser;
     }
     catch (error) {
@@ -45,13 +36,8 @@ const getAllUsers = async () => {
     }
 };
 exports.getAllUsers = getAllUsers;
-<<<<<<< HEAD
 // Get user by ID
-const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
-=======
-// Get a single user by ID
 const getUserById = async (userId) => {
->>>>>>> game-one
     try {
         const user = await user_model_1.default.findById(userId);
         if (!user)
@@ -63,17 +49,10 @@ const getUserById = async (userId) => {
     }
 };
 exports.getUserById = getUserById;
-<<<<<<< HEAD
 // Update user details
-const updateUser = (userId, data, avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = async (userId, data, avatarUrl) => {
     try {
-        const updatedUser = yield user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign(Object.assign({}, data), { avatar: avatarUrl }) }, { new: true });
-=======
-// Update user details (including avatar)
-const updateUser = async (userId, data) => {
-    try {
-        const updatedUser = await user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign({}, data) }, { new: true });
->>>>>>> game-one
+        const updatedUser = await user_model_1.default.findByIdAndUpdate(userId, { $set: Object.assign(Object.assign({}, data), { avatar: avatarUrl }) }, { new: true });
         if (!updatedUser)
             throw new Error("User not found");
         return updatedUser;
@@ -83,38 +62,8 @@ const updateUser = async (userId, data) => {
     }
 };
 exports.updateUser = updateUser;
-<<<<<<< HEAD
 // Add a friend (bi-directional)
-const addFriend = (userId, friendId) => __awaiter(void 0, void 0, void 0, function* () {
-=======
-// Dedicated function to update avatar only
-const updateAvatar = async (userId, avatarUrl) => {
-    try {
-        const user = await user_model_1.default.findByIdAndUpdate(userId, { $set: { avatar: avatarUrl } }, { new: true });
-        if (!user)
-            throw new Error("User not found");
-        return user;
-    }
-    catch (error) {
-        throw new Error("Error updating avatar");
-    }
-};
-exports.updateAvatar = updateAvatar;
-// Delete a user
-const deleteUser = async (userId) => {
-    try {
-        const user = await user_model_1.default.findByIdAndDelete(userId);
-        if (!user)
-            throw new Error("User not found");
-    }
-    catch (error) {
-        throw new Error("Error deleting user");
-    }
-};
-exports.deleteUser = deleteUser;
-// Add a friend (bi-directional relationship)
 const addFriend = async (userId, friendId) => {
->>>>>>> game-one
     try {
         if (userId === friendId) {
             throw new Error("You cannot add yourself as a friend.");
@@ -139,22 +88,13 @@ const addFriend = async (userId, friendId) => {
     }
 };
 exports.addFriend = addFriend;
-<<<<<<< HEAD
 // Update user stats
-const updateUserStats = (userId, totalScore, totalGamesPlayed, achievements, gameId) => __awaiter(void 0, void 0, void 0, function* () {
-=======
-// Update user stats (e.g., after a game)
 const updateUserStats = async (userId, totalScore, totalGamesPlayed, achievements, gameId) => {
->>>>>>> game-one
     try {
         const user = await user_model_1.default.findById(userId);
         if (!user)
             throw new Error("User not found");
-<<<<<<< HEAD
-        yield (0, score_service_1.validateAndUpdateScore)(userId, totalScore, gameId);
-=======
         await (0, score_service_1.validateAndUpdateScore)(userId, totalScore, gameId);
->>>>>>> game-one
         user.stats.totalGamesPlayed += totalGamesPlayed;
         user.stats.achievements.push(...achievements);
         await user.save();
@@ -179,9 +119,9 @@ const getUserFriends = async (userId) => {
 };
 exports.getUserFriends = getUserFriends;
 // Delete user by ID
-const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteUser = async (userId) => {
     try {
-        const deletedUser = yield user_model_1.default.findByIdAndDelete(userId);
+        const deletedUser = await user_model_1.default.findByIdAndDelete(userId);
         if (!deletedUser) {
             throw new Error("User not found");
         }
@@ -189,5 +129,5 @@ const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         throw new Error("Error deleting user");
     }
-});
+};
 exports.deleteUser = deleteUser;

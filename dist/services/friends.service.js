@@ -52,9 +52,9 @@ const acceptFriendRequest = async (userId, requestedUserId) => {
 };
 exports.acceptFriendRequest = acceptFriendRequest;
 // Cancel a friend request
-const cancelFriendRequest = (userId, requestedUserId) => __awaiter(void 0, void 0, void 0, function* () {
+const cancelFriendRequest = async (userId, requestedUserId) => {
     const friendRequestRef = db.collection("friend_requests").doc(userId);
-    const doc = yield friendRequestRef.get();
+    const doc = await friendRequestRef.get();
     if (!doc.exists) {
         throw new Error("Friend request not found");
     }
@@ -62,24 +62,24 @@ const cancelFriendRequest = (userId, requestedUserId) => __awaiter(void 0, void 
     if ((data === null || data === void 0 ? void 0 : data.requestedUserId) !== requestedUserId || (data === null || data === void 0 ? void 0 : data.status) !== "pending") {
         throw new Error("Cannot cancel this request");
     }
-    yield friendRequestRef.delete();
-});
+    await friendRequestRef.delete();
+};
 exports.cancelFriendRequest = cancelFriendRequest;
 // Get online friends
-const getOnlineFriends = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getOnlineFriends = async (userId) => {
     var _a;
     const userFriendsRef = db.collection("friends").doc(userId);
-    const userFriendsDoc = yield userFriendsRef.get();
+    const userFriendsDoc = await userFriendsRef.get();
     if (!userFriendsDoc.exists)
         return [];
     const friendIds = ((_a = userFriendsDoc.data()) === null || _a === void 0 ? void 0 : _a.friends) || [];
     if (friendIds.length === 0)
         return [];
     const usersRef = db.collection("users");
-    const onlineFriendsSnapshot = yield usersRef
+    const onlineFriendsSnapshot = await usersRef
         .where("status", "==", "online")
         .where("uid", "in", friendIds)
         .get();
     return onlineFriendsSnapshot.docs.map((doc) => doc.data());
-});
+};
 exports.getOnlineFriends = getOnlineFriends;

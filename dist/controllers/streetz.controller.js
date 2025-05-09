@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getQuestion = getQuestion;
 exports.getLetterPoints = getLetterPoints;
 exports.submitAnswer = submitAnswer;
-const question_model_1 = require("../models/question.model");
+const Question_model_1 = require("../models/Question.model");
 const streetzScore_1 = require("../utils/streetzScore");
 const letterPoint_model_1 = require("../models/letterPoint.model");
 const firebase_admin_1 = require("../config/firebase-admin");
@@ -41,7 +41,7 @@ const letterPoints = {
 async function getQuestion(req, res) {
     try {
         // Fetch a random question (category can be adjusted as needed)
-        const questions = await question_model_1.QuestionModel.getRandomQuestionsByCategory("general", 1);
+        const questions = await Question_model_1.QuestionModel.getRandomQuestionsByCategory("general", 1);
         // If no questions are found
         if (questions.length === 0) {
             res.status(404).json({ error: "No questions found" });
