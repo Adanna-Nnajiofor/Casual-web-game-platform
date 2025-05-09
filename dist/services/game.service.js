@@ -1,28 +1,19 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchGamesByType = exports.fetchGameBySlug = exports.fetchAllGames = void 0;
 const Game_model_1 = __importDefault(require("../models/Game.model"));
-const fetchAllGames = () => __awaiter(void 0, void 0, void 0, function* () {
-    return yield Game_model_1.default.find();
-});
+const fetchAllGames = async () => {
+    return await Game_model_1.default.find();
+};
 exports.fetchAllGames = fetchAllGames;
-const fetchGameBySlug = (slug) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield Game_model_1.default.findOne({ slug });
-});
+const fetchGameBySlug = async (slug) => {
+    return await Game_model_1.default.findOne({ slug });
+};
 exports.fetchGameBySlug = fetchGameBySlug;
-const fetchGamesByType = (type) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield Game_model_1.default.find({ type });
-});
+const fetchGamesByType = async (type) => {
+    return await Game_model_1.default.find({ type });
+};
 exports.fetchGamesByType = fetchGamesByType;

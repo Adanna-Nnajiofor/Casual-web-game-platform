@@ -83,14 +83,14 @@ const acceptRequest = async (req, res) => {
 };
 exports.acceptRequest = acceptRequest;
 // Cancel a friend request
-const cancelRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const cancelRequest = async (req, res) => {
     try {
         const { userId, requestedUserId } = req.body;
         if (!userId || !requestedUserId) {
             res.status(400).json({ message: "Missing required fields" });
             return;
         }
-        yield (0, friends_service_1.cancelFriendRequest)(userId, requestedUserId);
+        await (0, friends_service_1.cancelFriendRequest)(userId, requestedUserId);
         res.status(200).json({ message: "Friend request cancelled" });
     }
     catch (error) {
@@ -107,17 +107,17 @@ const cancelRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             });
         }
     }
-});
+};
 exports.cancelRequest = cancelRequest;
 // See online friends
-const seeOnlineFriends = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const seeOnlineFriends = async (req, res) => {
     try {
         const { userId } = req.query;
         if (!userId || typeof userId !== "string") {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
-        const onlineFriends = yield (0, friends_service_1.getOnlineFriends)(userId);
+        const onlineFriends = await (0, friends_service_1.getOnlineFriends)(userId);
         if (onlineFriends.length === 0) {
             res.status(200).json({
                 message: "😢 Nobody is online",
@@ -141,5 +141,5 @@ const seeOnlineFriends = (req, res) => __awaiter(void 0, void 0, void 0, functio
             });
         }
     }
-});
+};
 exports.seeOnlineFriends = seeOnlineFriends;

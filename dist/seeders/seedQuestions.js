@@ -315,27 +315,14 @@ const questions = [
         category: "Pop Culture",
     },
 ];
-<<<<<<< HEAD
-function seed() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const batch = db.batch();
-        const colRef = db.collection("questions");
-        questions.forEach((q) => {
-            const docRef = colRef.doc();
-            batch.set(docRef, q);
-        });
-        yield batch.commit();
-        console.log("All trivia questions seeded successfully.");
-=======
 async function seed() {
     const batch = db.batch();
     const colRef = db.collection("questions");
     questions.forEach((q) => {
         const docRef = colRef.doc();
         batch.set(docRef, q);
->>>>>>> dev
     });
     await batch.commit();
-    console.log(" Questions seeded.");
+    console.log("All trivia questions seeded successfully.");
 }
 seed();
