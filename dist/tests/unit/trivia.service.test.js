@@ -17,7 +17,7 @@ jest.mock("../../config/firebase-admin", () => {
     };
 });
 // Mock QuestionModel
-jest.mock("../../models/Question.model", () => ({
+jest.mock("../../models/Question.model.ts", () => ({
     QuestionModel: {
         getRandomQuestionsByCategory: jest.fn(),
     },
