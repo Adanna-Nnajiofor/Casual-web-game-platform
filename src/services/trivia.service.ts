@@ -1,4 +1,4 @@
-import { QuestionModel } from "../models/question.model";
+import { QuestionModel } from "../models/Question.model";
 import { calculateTriviaScore } from "../utils/score.utils";
 
 export class TriviaService {
