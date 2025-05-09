@@ -1,5 +1,5 @@
 import { TriviaService } from "../../services/trivia.service";
-import { QuestionModel } from "../../models/question.model";
+import { QuestionModel } from "../../models/Question.model";
 import { admin } from "../../config/firebase-admin";
 import { calculateTriviaScore } from "../../utils/score.utils";
 
