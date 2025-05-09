@@ -1,5 +1,4 @@
 "use strict";
-<<<<<<< HEAD
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -33,19 +32,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-=======
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
->>>>>>> game-one
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateUserStats = exports.getUserFriends = exports.addFriend = exports.deleteUser = exports.updateUser = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
 const mongoose_1 = require("mongoose");
@@ -56,11 +42,7 @@ const UserService = __importStar(require("../services/user.service"));
 const createUser = async (req, res, next) => {
     const { username, email, password, avatar } = req.body;
     try {
-<<<<<<< HEAD
-        const existingUser = yield UserService.getUserById(email);
-=======
-        const existingUser = await user_model_1.default.findOne({ email });
->>>>>>> game-one
+        const existingUser = await UserService.getUserById(email);
         if (existingUser) {
             return next(new AppError_1.AppError("User already exists", 400));
         }
@@ -69,21 +51,8 @@ const createUser = async (req, res, next) => {
             const file = req.files.avatar[0];
             avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(file);
         }
-<<<<<<< HEAD
-        const newUser = yield UserService.createUser({ username, email, password }, avatarUrl);
+        const newUser = await UserService.createUser({ username, email, password }, avatarUrl);
         res.status(201).json({ message: "User created", user: newUser });
-=======
-        const user = new user_model_1.default({
-            username,
-            email,
-            password,
-            avatar: avatarUrl,
-            stats: { totalScore: 0, totalGamesPlayed: 0, achievements: [] },
-            friends: [],
-        });
-        const savedUser = await user.save();
-        res.status(201).json({ message: "User created", user: savedUser });
->>>>>>> game-one
     }
     catch (error) {
         next(error);
@@ -93,11 +62,7 @@ exports.createUser = createUser;
 // Get all users
 const getAllUsers = async (_, res, next) => {
     try {
-<<<<<<< HEAD
-        const users = yield UserService.getAllUsers();
-=======
-        const users = await user_model_1.default.find();
->>>>>>> game-one
+        const users = await UserService.getAllUsers();
         res.status(200).json(users);
     }
     catch (error) {
@@ -112,11 +77,7 @@ const getUserById = async (req, res, next) => {
         return next(new AppError_1.AppError("Invalid user ID", 400));
     }
     try {
-<<<<<<< HEAD
-        const user = yield UserService.getUserById(userId);
-=======
-        const user = await user_model_1.default.findById(userId);
->>>>>>> game-one
+        const user = await UserService.getUserById(userId);
         if (!user) {
             return next(new AppError_1.AppError("User not found", 404));
         }
@@ -140,11 +101,7 @@ const updateUser = async (req, res, next) => {
             const file = req.files.avatar[0];
             avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(file);
         }
-<<<<<<< HEAD
-        const updatedUser = yield UserService.updateUser(userId, { username, email }, avatarUrl);
-=======
-        const updatedUser = await user_model_1.default.findByIdAndUpdate(userId, { $set: { username, email, avatar: avatarUrl } }, { new: true });
->>>>>>> game-one
+        const updatedUser = await UserService.updateUser(userId, { username, email }, avatarUrl);
         if (!updatedUser) {
             return next(new AppError_1.AppError("User not found", 404));
         }
@@ -162,14 +119,7 @@ const deleteUser = async (req, res, next) => {
         return next(new AppError_1.AppError("Invalid user ID", 400));
     }
     try {
-<<<<<<< HEAD
-        yield UserService.deleteUser(userId);
-=======
-        const user = await user_model_1.default.findByIdAndDelete(userId);
-        if (!user) {
-            return next(new AppError_1.AppError("User not found", 404));
-        }
->>>>>>> game-one
+        await UserService.deleteUser(userId);
         res.status(200).json({ message: "User deleted" });
     }
     catch (error) {
@@ -185,26 +135,7 @@ const addFriend = async (req, res, next) => {
         return next(new AppError_1.AppError("Invalid user or friend ID", 400));
     }
     try {
-<<<<<<< HEAD
-        const user = yield UserService.addFriend(userId, friendId);
-=======
-        if (userId === friendId) {
-            return next(new AppError_1.AppError("You cannot add yourself as a friend.", 400));
-        }
-        const user = await user_model_1.default.findById(userId).exec();
-        const friend = await user_model_1.default.findById(friendId).exec();
-        if (!user || !friend) {
-            return next(new AppError_1.AppError("User or friend not found", 404));
-        }
-        if (!user.friends.includes(friend._id)) {
-            user.friends.push(friend._id);
-            await user.save();
-        }
-        if (!friend.friends.includes(user._id)) {
-            friend.friends.push(user._id);
-            await friend.save();
-        }
->>>>>>> game-one
+        const user = await UserService.addFriend(userId, friendId);
         res.status(200).json({ message: "Friend added", user });
     }
     catch (error) {
@@ -212,31 +143,6 @@ const addFriend = async (req, res, next) => {
     }
 };
 exports.addFriend = addFriend;
-<<<<<<< HEAD
-=======
-// Update user stats
-const updateUserStats = async (req, res, next) => {
-    const { userId } = req.params;
-    const { totalScore, totalGamesPlayed, achievements, gameId } = req.body;
-    try {
-        const user = await user_model_1.default.findById(userId);
-        if (!user) {
-            return next(new AppError_1.AppError("User not found", 404));
-        }
-        await (0, score_service_1.validateAndUpdateScore)(userId, totalScore, gameId);
-        user.stats.totalGamesPlayed += totalGamesPlayed || 0;
-        if (achievements && Array.isArray(achievements)) {
-            user.stats.achievements.push(...achievements);
-        }
-        await user.save();
-        res.status(200).json({ message: "Stats updated", user });
-    }
-    catch (error) {
-        next(error);
-    }
-};
-exports.updateUserStats = updateUserStats;
->>>>>>> game-one
 // Get all friends of a user
 const getUserFriends = async (req, res, next) => {
     const { userId } = req.params;
@@ -244,30 +150,22 @@ const getUserFriends = async (req, res, next) => {
         return next(new AppError_1.AppError("Invalid user ID", 400));
     }
     try {
-<<<<<<< HEAD
-        const friends = yield UserService.getUserFriends(userId);
+        const friends = await UserService.getUserFriends(userId);
         res.status(200).json(friends);
-=======
-        const user = await user_model_1.default.findById(userId).populate("friends");
-        if (!user) {
-            return next(new AppError_1.AppError("User not found", 404));
-        }
-        res.status(200).json(user.friends);
->>>>>>> game-one
     }
     catch (error) {
         next(error);
     }
 };
 exports.getUserFriends = getUserFriends;
-const updateUserStats = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserStats = async (req, res, next) => {
     const { userId } = req.params;
     const { totalScore, totalGamesPlayed, achievements, gameId } = req.body;
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         return next(new AppError_1.AppError("Invalid user ID", 400));
     }
     try {
-        const updatedUser = yield UserService.updateUserStats(userId, totalScore, totalGamesPlayed, achievements, gameId);
+        const updatedUser = await UserService.updateUserStats(userId, totalScore, totalGamesPlayed, achievements, gameId);
         if (!updatedUser) {
             return next(new AppError_1.AppError("User not found", 404));
         }
@@ -276,5 +174,5 @@ const updateUserStats = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     catch (error) {
         next(error);
     }
-});
+};
 exports.updateUserStats = updateUserStats;

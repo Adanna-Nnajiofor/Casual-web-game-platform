@@ -38,11 +38,7 @@ describe("User Service", () => {
             password: "securepass",
         };
         const gameId = "mock-game-id";
-<<<<<<< HEAD
-        const user = yield (0, user_service_1.createUser)(userData, gameId);
-=======
         const user = await (0, user_service_1.createUser)(userData, gameId);
->>>>>>> game-one
         expect(user).toHaveProperty("_id");
         expect(user.email).toBe(userData.email);
     });
