@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-// Define the Mongoose schema
+// Define the Mongoose schema for User
 const UserSchema = new mongoose_1.Schema({
     username: {
         type: String,
@@ -50,11 +50,19 @@ const UserSchema = new mongoose_1.Schema({
     },
     password: {
         type: String,
+    },
+    provider: {
+        type: String,
+        enum: ["google", "facebook", "local"],
         required: true,
     },
     avatar: {
         type: String,
         default: "",
+    },
+    firebaseUid: {
+        type: String,
+        unique: true,
     },
     lastLogin: {
         type: Date,
@@ -97,4 +105,6 @@ const UserSchema = new mongoose_1.Schema({
         },
     ],
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("User", UserSchema);
+// Create and export the User model
+const User = (0, mongoose_1.model)("User", UserSchema);
+exports.default = User;
