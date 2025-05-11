@@ -11,7 +11,7 @@ exports.QuestionModel = {
             .where("category", "==", category)
             .get();
         const allQuestions = snapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
-        // Shuffle and pick `count` questions
+        // Shuffle and pick count questions
         const shuffled = allQuestions.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     },

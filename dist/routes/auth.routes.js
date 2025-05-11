@@ -10,4 +10,5 @@ const router = express_1.default.Router();
 router.use(rateLimiter_1.rateLimiter);
 router.post("/register", auth_controller_1.registerUser);
 router.post("/login", auth_controller_1.loginUser);
+router.post("/social-login", auth_controller_1.socialLogin);
 exports.default = router;
