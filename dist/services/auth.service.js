@@ -40,6 +40,9 @@ const loginUserService = async (username, password) => {
     if (!user) {
         throw new Error(`User with username "${username}" not found.`);
     }
+    if (!user.password) {
+        throw new Error("This user has no password set. Try logging in with social login.");
+    }
     const isMatch = await bcryptjs_1.default.compare(password, user.password);
     if (!isMatch) {
         throw new Error("Invalid password");
