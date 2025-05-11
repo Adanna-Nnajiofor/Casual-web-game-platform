@@ -4,6 +4,7 @@ import { registerSchema, loginSchema } from "../utils/validate";
 import {
   registerUserService,
   loginUserService,
+  socialLoginService,
 } from "../services/auth.service";
 
 // REGISTER CONTROLLER
@@ -77,5 +78,32 @@ export const loginUser: RequestHandler = async (req, res): Promise<void> => {
     res.status(401).json({
       message: error.message || "Login failed",
     });
+  }
+};
+
+// SOCIAL LOGIN CONTROLLER (Google/Facebook)
+export const socialLogin: RequestHandler = async (req, res): Promise<void> => {
+  const { idToken } = req.body;
+
+  if (!idToken) {
+    res.status(400).json({ message: "ID token is required" });
+    return;
+  }
+
+  try {
+    const { token, user } = await socialLoginService(idToken);
+
+    res.status(200).json({
+      message: `Welcome ${user.username}`,
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error: any) {
+    res.status(401).json({ message: error.message || "Social login failed" });
   }
 };

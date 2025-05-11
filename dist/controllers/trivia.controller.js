@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.submitAnswers = exports.getQuestions = void 0;
 const trivia_service_1 = require("../services/trivia.service");
-// import { QuestionModel } from "../models/question.model";
-// import { calculateTriviaScore } from "../utils/score.utils";
 // Fetch questions for the game
 const getQuestions = async (req, res) => {
     const { category = "Music", count = 5 } = req.query;

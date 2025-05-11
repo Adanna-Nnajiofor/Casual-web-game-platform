@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUser = exports.registerUser = void 0;
+exports.socialLogin = exports.loginUser = exports.registerUser = void 0;
 const validate_1 = require("../utils/validate");
 const validate_2 = require("../utils/validate");
 const auth_service_1 = require("../services/auth.service");
@@ -65,3 +65,28 @@ const loginUser = async (req, res) => {
     }
 };
 exports.loginUser = loginUser;
+// SOCIAL LOGIN CONTROLLER (Google/Facebook)
+const socialLogin = async (req, res) => {
+    const { idToken } = req.body;
+    if (!idToken) {
+        res.status(400).json({ message: "ID token is required" });
+        return;
+    }
+    try {
+        const { token, user } = await (0, auth_service_1.socialLoginService)(idToken);
+        res.status(200).json({
+            message: `Welcome ${user.username}`,
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+            },
+        });
+    }
+    catch (error) {
+        res.status(401).json({ message: error.message || "Social login failed" });
+    }
+};
+exports.socialLogin = socialLogin;

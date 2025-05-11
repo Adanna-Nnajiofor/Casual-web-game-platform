@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUserService = exports.registerUserService = void 0;
+exports.socialLoginService = exports.loginUserService = exports.registerUserService = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_model_1 = __importDefault(require("../models/user.model"));
+const verifyFirebaseToken_1 = require("../utils/verifyFirebaseToken");
 require("../config/env");
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -53,3 +54,47 @@ const loginUserService = async (username, password) => {
     };
 };
 exports.loginUserService = loginUserService;
+// SOCIAL LOGIN SERVICE (Google/Facebook)
+const socialLoginService = async (idToken) => {
+    if (!idToken) {
+        throw new Error("ID token is required");
+    }
+    try {
+        // Verify the Firebase ID token
+        const decoded = await (0, verifyFirebaseToken_1.verifyFirebaseToken)(idToken);
+        const { uid, email, name, picture, firebase } = decoded;
+        // Check if email is undefined
+        if (!email) {
+            throw new Error("Email is required from Firebase");
+        }
+        // Check if user exists by email (Google or Facebook login can be identified by the provider)
+        let user = await user_model_1.default.findOne({ email });
+        if (!user) {
+            // If user doesn't exist, create a new user
+            user = new user_model_1.default({
+                username: name || email.split("@")[0],
+                email,
+                provider: (firebase === null || firebase === void 0 ? void 0 : firebase.sign_in_provider) || "social",
+                avatar: picture,
+                firebaseUid: uid,
+                lastLogin: new Date(),
+                stats: {
+                    totalGamesPlayed: 0,
+                    totalScore: 0,
+                    achievements: [],
+                },
+                friends: [],
+            });
+            await user.save();
+        }
+        // Generate JWT for your app
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
+            expiresIn: "1h",
+        });
+        return { token, user };
+    }
+    catch (error) {
+        throw new Error("Social login failed");
+    }
+};
+exports.socialLoginService = socialLoginService;
