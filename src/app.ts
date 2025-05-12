@@ -12,8 +12,7 @@ import feedbackRoutes from "./routes/feedback.routes";
 import triviaRoutes from "./routes/trivia.routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-import streetzGameRoutes from "./routes/streetz.routes";
-import connectDB  from "./config/db";
+import connectDB from "./config/db";
 import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
@@ -23,11 +22,9 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 // Middleware
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json());
 
-app.use('/api', streetzRoutes);
-
-connectDB(); // Connect to MongoDB
+connectDB();
 
 // Routes
 app.use("/auth", authRoutes);
@@ -37,6 +34,8 @@ app.use("/leaderboard", leaderboardRoutes);
 app.use("/user", userRoutes);
 app.use("/friends", friendsRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/trivia", triviaRoutes);
+app.use("/streetz", streetzRoutes);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -45,5 +44,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get("/", (_req: Request, res: Response) => {
   res.send("Casual Web Game Platform Backend is running!");
 });
+
+app.use(errorHandler);
 
 export default app;
