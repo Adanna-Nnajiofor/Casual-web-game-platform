@@ -7,6 +7,7 @@ const Question_model_1 = require("../models/Question.model");
 const streetzScore_1 = require("../utils/streetzScore");
 const letterPoint_model_1 = require("../models/letterPoint.model");
 const firebase_admin_1 = require("../config/firebase-admin");
+const slangValidator_1 = require("../utils/slangValidator");
 const db = firebase_admin_1.admin.firestore();
 const questionsCollection = db.collection("questions");
 const letterPoints = {
@@ -81,25 +82,31 @@ async function getLetterPoints(req, res) {
 // POST submit answer
 async function submitAnswer(req, res) {
     const { questionId, playerAnswer } = req.body;
-    // Validate input
     if (!questionId || !playerAnswer) {
         res.status(400).json({ error: "Missing questionId or playerAnswer" });
         return;
     }
     try {
-        // Fetch the question from Firestore by ID
         const snapshot = await questionsCollection.doc(questionId).get();
-        const question = snapshot.data(); // This should contain questionText, answer, and other fields
+        const question = snapshot.data();
         if (!question) {
             res.status(404).json({ error: "Question not found" });
             return;
         }
-        // Type assertion to ensure the question object matches the expected structure
         const typedQuestion = question;
-        // Calculate the score for the player's answer
+        const isValid = await (0, slangValidator_1.isValidSlang)(playerAnswer);
+        if (!isValid) {
+            res.status(400).json({
+                valid: false,
+                message: "No be am!",
+                score: 0,
+                correctAnswer: typedQuestion.answer,
+            });
+            return;
+        }
         const score = (0, streetzScore_1.calculateScore)(typedQuestion.answer, playerAnswer, letterPoints);
-        // Respond with the calculated score and the correct answer
         res.json({
+            valid: true,
             correctAnswer: typedQuestion.answer,
             playerAnswer,
             score,
