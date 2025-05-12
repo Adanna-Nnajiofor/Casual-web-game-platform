@@ -14,7 +14,7 @@ const letterPoints: LetterPointMap = {
 
 // GET a question
 export async function getQuestion(req: Request, res: Response): Promise<Response> {
-  const question = await Question.findOne();
+  const question = await QuestionModel.findOne();
   if (!question) return res.status(404).json({ error: 'No questions found' });
 
   return res.json({
@@ -41,7 +41,7 @@ if (!questionId || !playerAnswer) {
     try {
         // Add logic to process the answer submission here
         // Fetch the question from the database
-        const question = await Question.findById(questionId);
+        const question = await QuestionModel.findById(questionId);
         if (!question) {
             return res.status(404).json({ error: 'Question not found' });
         }
