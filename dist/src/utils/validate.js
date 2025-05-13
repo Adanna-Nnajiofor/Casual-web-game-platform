@@ -1,0 +1,54 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sessionSchema = exports.loginSchema = exports.registerSchema = void 0;
+exports.validate = validate;
+const zod_1 = require("zod");
+// User registration schema
+exports.registerSchema = zod_1.z
+    .object({
+    username: zod_1.z
+        .string()
+        .nonempty("Username is required")
+        .min(3, "Username must be at least 3 characters"),
+    email: zod_1.z
+        .string()
+        .nonempty("Email is required")
+        .email("Invalid email address"),
+    password: zod_1.z
+        .string()
+        .nonempty("Password is required")
+        .min(6, "Password must be at least 6 characters")
+        .regex(/[A-Za-z]/, "Password must contain at least one letter")
+        .regex(/[0-9]/, "Password must contain at least one number"),
+    confirmPassword: zod_1.z.string().nonempty("Confirm Password is required"),
+})
+    .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+});
+// User login schema
+exports.loginSchema = zod_1.z.object({
+    username: zod_1.z
+        .string()
+        .nonempty("Username is required")
+        .min(3, "Username must be at least 3 characters"),
+    password: zod_1.z
+        .string()
+        .nonempty("Password is required")
+        .min(6, "Password must be at least 6 characters"),
+});
+// Game session submission schema
+exports.sessionSchema = zod_1.z.object({
+    gameId: zod_1.z.string().nonempty("Game ID is required").uuid("Invalid game ID"),
+    score: zod_1.z.number().min(0, "Score must be zero or higher"),
+    duration: zod_1.z.number().min(1, "Session must last at least 1 second"),
+});
+// Optional: Validate helper
+function validate(schema, data) {
+    const result = schema.safeParse(data);
+    if (!result.success) {
+        const errors = result.error.format();
+        return { success: false, errors };
+    }
+    return { success: true, data: result.data };
+}

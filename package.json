@@ -8,7 +8,8 @@
     "build": "tsc",
     "dev": "ts-node-dev src/app.ts",
     "seed": "ts-node src/seeders/seedQuestions.ts",
-    "seed:slangs": "ts-node src/seeders/seedSlangs.ts"
+    "seed:slangs": "ts-node src/seeders/seedSlangs.ts",
+    "fix:index": "ts-node scripts/fixFirebaseUidIndex.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

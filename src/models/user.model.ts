@@ -53,6 +53,7 @@ const UserSchema: Schema = new Schema(
     },
     firebaseUid: {
       type: String,
+      sparse: true,
       unique: true,
     },
     lastLogin: {
