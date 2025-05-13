@@ -61,11 +61,11 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         default: "",
     },
-    // firebaseUid: {
-    //   type: String,
-    //   sparse: true,
-    //   unique: true,
-    // },
+    firebaseUid: {
+        type: String,
+        sparse: true,
+        unique: true,
+    },
     lastLogin: {
         type: Date,
         default: Date.now,

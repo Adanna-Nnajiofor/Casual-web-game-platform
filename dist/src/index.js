@@ -12,7 +12,11 @@ const startServer = async () => {
     try {
         await (0, db_1.default)();
         app_1.default.listen(PORT, () => {
-            console.log(` Server running on http://localhost:${PORT}`);
+            console.log(` MongoDB connected: Production mode`);
+            console.log(` Server running on port ${PORT}`);
+            if (process.env.RENDER_EXTERNAL_URL) {
+                console.log(` Live at: ${process.env.RENDER_EXTERNAL_URL}`);
+            }
         });
     }
     catch (error) {

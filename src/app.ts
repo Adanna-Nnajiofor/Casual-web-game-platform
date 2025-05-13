@@ -17,7 +17,7 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
@@ -26,7 +26,7 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
 
-connectDB();
+// connectDB();
 
 // Routes
 app.use("/auth", authRoutes);
