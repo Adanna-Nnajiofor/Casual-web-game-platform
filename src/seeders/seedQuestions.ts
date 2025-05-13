@@ -9,9 +9,9 @@ const questions = [
     question: "What does “Wahala be like bicycle” mean?",
     options: [
       "Trouble is easy to start",
-      "It’s fun to ride",
-      "It’s slow and steady",
-      "It’s expensive",
+      "It is fun to ride",
+      "It is slow and steady",
+      "It is expensive",
     ],
     answer: "Trouble is easy to start",
     category: "Slang",
@@ -74,7 +74,7 @@ const questions = [
     category: "Slang",
   },
 
-  // 🎶 MUSIC
+  //  MUSIC
   {
     question: "Who is known as the “Queen of Afrobeat”?",
     options: ["Tiwa Savage", "Yemi Alade", "Asa", "Simi"],

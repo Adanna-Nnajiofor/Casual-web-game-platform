@@ -44,6 +44,7 @@ const UserSchema: Schema = new Schema(
     provider: {
       type: String,
       enum: ["google", "facebook", "local"],
+      default: "local",
       required: true,
     },
     avatar: {
