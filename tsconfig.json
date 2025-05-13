@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -13,6 +13,6 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node", "jest"]
   },
-  "include": ["src/**/*", "src/jest.setup.ts", "seeders/**/*"],
+  "include": ["src/**/*", "src/jest.setup.ts", "seeders/**/*", "scripts"],
   "exclude": ["node_modules", "dist"]
 }
