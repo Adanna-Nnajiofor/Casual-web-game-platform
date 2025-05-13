@@ -321,6 +321,343 @@ const questions = [
     answer: "Big Brother Naija",
     category: "Pop Culture",
   },
+
+  // SPORTS
+  {
+    question:
+      "Who is known as the 'Mathematical' in Nigerian football history?",
+    options: [
+      "Rashidi Yekini",
+      "Jay-Jay Okocha",
+      "Segun Odegbami",
+      "Kanu Nwankwo",
+    ],
+    answer: "Segun Odegbami",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian footballer scored Nigeria's first-ever World Cup goal?",
+    options: [
+      "Daniel Amokachi",
+      "Rashidi Yekini",
+      "Jay-Jay Okocha",
+      "Kanu Nwankwo",
+    ],
+    answer: "Rashidi Yekini",
+    category: "Sports",
+  },
+  {
+    question:
+      "In which year did Nigeria's Super Eagles win their first AFCON title?",
+    options: ["1980", "1994", "2000", "2013"],
+    answer: "1980",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian female athlete is known as the 'Queen of the Track'?",
+    options: [
+      "Blessing Okagbare",
+      "Mary Onyali",
+      "Falilat Ogunkoya",
+      "Chioma Ajunwa",
+    ],
+    answer: "Blessing Okagbare",
+    category: "Sports",
+  },
+  {
+    question: "Who is Nigeria’s first Olympic gold medalist?",
+    options: [
+      "Mary Onyali",
+      "Chioma Ajunwa",
+      "Falilat Ogunkoya",
+      "Francis Obikwelu",
+    ],
+    answer: "Chioma Ajunwa",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian club is known as 'The People’s Elephant'?",
+    options: [
+      "Enyimba FC",
+      "Kano Pillars",
+      "Rangers International",
+      "Sunshine Stars",
+    ],
+    answer: "Enyimba FC",
+    category: "Sports",
+  },
+  {
+    question:
+      "Who was the captain of the Super Eagles during the 2013 AFCON win?",
+    options: ["Kanu Nwankwo", "Joseph Yobo", "Vincent Enyeama", "Mikel Obi"],
+    answer: "Joseph Yobo",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian striker is known for the famous goal celebration 'Flute Dance'?",
+    options: [
+      "Jay-Jay Okocha",
+      "Kanu Nwankwo",
+      "Rashidi Yekini",
+      "Victor Moses",
+    ],
+    answer: "Rashidi Yekini",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian player has won the UEFA Champions League?",
+    options: [
+      "Jay-Jay Okocha",
+      "Obafemi Martins",
+      "Kanu Nwankwo",
+      "Victor Osimhen",
+    ],
+    answer: "Kanu Nwankwo",
+    category: "Sports",
+  },
+  {
+    question:
+      "Nigeria's famous 'D’Tigress' is the national team for which sport?",
+    options: ["Handball", "Basketball", "Volleyball", "Table Tennis"],
+    answer: "Basketball",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian athlete is known as 'The Beast' in boxing?",
+    options: ["Samuel Peter", "Anthony Joshua", "Ike Ibeabuchi", "Efe Ajagba"],
+    answer: "Samuel Peter",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian goalkeeper is famous for his penalty saves?",
+    options: ["Ike Shorunmu", "Peter Rufai", "Vincent Enyeama", "Carl Ikeme"],
+    answer: "Vincent Enyeama",
+    category: "Sports",
+  },
+  {
+    question:
+      "In which year did Nigeria’s Golden Eaglets win their first U-17 World Cup?",
+    options: ["1985", "1993", "2007", "2013"],
+    answer: "1985",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian athlete broke the 100m hurdles world record in 2022?",
+    options: [
+      "Mary Onyali",
+      "Falilat Ogunkoya",
+      "Blessing Okagbare",
+      "Tobi Amusan",
+    ],
+    answer: "Tobi Amusan",
+    category: "Sports",
+  },
+  {
+    question: "Who is the first Nigerian player to play in the NBA?",
+    options: ["Hakeem Olajuwon", "Obinna Ekezie", "Ime Udoka", "Festus Ezeli"],
+    answer: "Hakeem Olajuwon",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian female footballer won the CAF Women’s Player of the Year award four times?",
+    options: [
+      "Asisat Oshoala",
+      "Perpetua Nkwocha",
+      "Mercy Akide",
+      "Desire Oparanozie",
+    ],
+    answer: "Perpetua Nkwocha",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian athlete is known for the phrase 'No shaking'?",
+    options: [
+      "Rashidi Yekini",
+      "Kanu Nwankwo",
+      "Jay-Jay Okocha",
+      "Taribo West",
+    ],
+    answer: "Taribo West",
+    category: "Sports",
+  },
+  {
+    question:
+      "Who is the first Nigerian boxer to become a heavyweight world champion?",
+    options: ["Ike Ibeabuchi", "Samuel Peter", "Anthony Joshua", "Efe Ajagba"],
+    answer: "Anthony Joshua",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian footballer is known as 'The Big Boss'?",
+    options: ["Stephen Keshi", "Sunday Oliseh", "Mikel Obi", "Joseph Yobo"],
+    answer: "Stephen Keshi",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian player scored a hat-trick against Cameroon in AFCON 2004?",
+    options: [
+      "Jay-Jay Okocha",
+      "Julius Aghahowa",
+      "Obafemi Martins",
+      "Yakubu Aiyegbeni",
+    ],
+    answer: "Julius Aghahowa",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian player won the FIFA U-17 World Cup Golden Boot in 2015?",
+    options: [
+      "Kelechi Iheanacho",
+      "Victor Osimhen",
+      "Samuel Chukwueze",
+      "Taiwo Awoniyi",
+    ],
+    answer: "Victor Osimhen",
+    category: "Sports",
+  },
+  {
+    question:
+      "Who was the first Nigerian player to play in the English Premier League?",
+    options: ["Taribo West", "Jay-Jay Okocha", "Efan Ekoku", "Kanu Nwankwo"],
+    answer: "Efan Ekoku",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian athlete won the Commonwealth gold medal in wrestling in 2018?",
+    options: [
+      "Odunayo Adekuoroye",
+      "Blessing Oborududu",
+      "Aminat Adeniyi",
+      "Daniel Igali",
+    ],
+    answer: "Blessing Oborududu",
+    category: "Sports",
+  },
+  {
+    question:
+      "Who scored Nigeria’s winning goal against Argentina at the 1996 Olympics?",
+    options: [
+      "Kanu Nwankwo",
+      "Jay-Jay Okocha",
+      "Emmanuel Amuneke",
+      "Celestine Babayaro",
+    ],
+    answer: "Emmanuel Amuneke",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian boxer won gold at the 1962 Commonwealth Games?",
+    options: ["Nojim Maiyegun", "Hogan Bassey", "Dick Tiger", "Samuel Peter"],
+    answer: "Nojim Maiyegun",
+    category: "Sports",
+  },
+  {
+    question: "Who is the youngest Nigerian to play in a FIFA World Cup?",
+    options: [
+      "Kelechi Iheanacho",
+      "Samuel Chukwueze",
+      "Femi Opabunmi",
+      "Mikel Obi",
+    ],
+    answer: "Femi Opabunmi",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian player won an NBA championship with the Milwaukee Bucks?",
+    options: [
+      "Hakeem Olajuwon",
+      "Giannis Antetokounmpo",
+      "Michael Olowokandi",
+      "Thanasis Antetokounmpo",
+    ],
+    answer: "Thanasis Antetokounmpo",
+    category: "Sports",
+  },
+  {
+    question: "Who is the first Nigerian to win a UFC title?",
+    options: [
+      "Kamaru Usman",
+      "Israel Adesanya",
+      "Sodiq Yusuff",
+      "Usman Garuba",
+    ],
+    answer: "Kamaru Usman",
+    category: "Sports",
+  },
+  {
+    question: "Which Nigerian basketball team is known as D’Tigers?",
+    options: [
+      "Male Basketball Team",
+      "Female Basketball Team",
+      "U-17 Team",
+      "Beach Volleyball Team",
+    ],
+    answer: "Male Basketball Team",
+    category: "Sports",
+  },
+  {
+    question:
+      "Which Nigerian athlete won bronze in the long jump at the 1996 Olympics?",
+    options: [
+      "Mary Onyali",
+      "Falilat Ogunkoya",
+      "Chioma Ajunwa",
+      "Glory Alozie",
+    ],
+    answer: "Chioma Ajunwa",
+    category: "Sports",
+  },
+
+  // Track and Field
+  {
+    question: "Who is Nigeria’s fastest female sprinter as of 2022?",
+    options: ["Blessing Okagbare", "Mary Onyali", "Tobi Amusan", "Mercy Nku"],
+    answer: "Tobi Amusan",
+    category: "Track and Field",
+  },
+  {
+    question: "Which Nigerian sprinter is known as the 'Divine Express'?",
+    options: [
+      "Divine Oduduru",
+      "Seye Ogunlewe",
+      "Blessing Okagbare",
+      "Davidson Ezinwa",
+    ],
+    answer: "Divine Oduduru",
+    category: "Track and Field",
+  },
+  {
+    question:
+      "Which Nigerian athlete won silver at the 2000 Olympics in the 4x400m relay?",
+    options: [
+      "Mary Onyali",
+      "Falilat Ogunkoya",
+      "Fatimah Yusuf",
+      "Glory Alozie",
+    ],
+    answer: "Falilat Ogunkoya",
+    category: "Track and Field",
+  },
+  {
+    question: "Who holds the Nigerian record for men’s 100m?",
+    options: [
+      "Olusoji Fasuba",
+      "Divine Oduduru",
+      "Seye Ogunlewe",
+      "Francis Obikwelu",
+    ],
+    answer: "Olusoji Fasuba",
+    category: "Track and Field",
+  },
 ];
 
 async function seed() {
