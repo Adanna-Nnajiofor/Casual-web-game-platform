@@ -95,7 +95,12 @@ export const socialLoginService = async (idToken: string) => {
       user = new User({
         username: name || email.split("@")[0],
         email,
-        provider: firebase?.sign_in_provider || "social",
+        provider: ["google.com", "facebook.com"].includes(
+          firebase?.sign_in_provider
+        )
+          ? firebase.sign_in_provider.replace(".com", "")
+          : "google",
+
         avatar: picture,
         firebaseUid: uid,
         lastLogin: new Date(),
