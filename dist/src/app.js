@@ -20,7 +20,7 @@ const yamljs_1 = __importDefault(require("yamljs"));
 const db_1 = __importDefault(require("./config/db"));
 const streetz_routes_1 = __importDefault(require("./routes/streetz.routes"));
 const app = (0, express_1.default)();
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(), "src/swagger.yaml"));
 // Middleware
