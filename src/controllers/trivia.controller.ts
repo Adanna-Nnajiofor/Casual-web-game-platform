@@ -3,15 +3,29 @@ import { TriviaService } from "../services/trivia.service";
 
 // Fetch questions for the game
 export const getQuestions = async (req: Request, res: Response) => {
-  const { category = "Music", count = 5 } = req.query;
+  const { category, count = 5 } = req.query;
+  console.log(
+    `Fetching questions for category: ${category || "All"} with count: ${count}`
+  );
+
   try {
-    // Call TriviaService to fetch questions
-    const questions = await TriviaService.fetchQuestions(
-      String(category),
-      Number(count)
-    );
+    let questions;
+
+    // If no category is specified, fetch all questions
+    if (!category) {
+      console.log("Fetching all questions");
+      questions = await TriviaService.fetchQuestions("", Number(count));
+    } else {
+      console.log(`Fetching questions for category: ${category}`);
+      questions = await TriviaService.fetchQuestions(
+        String(category),
+        Number(count)
+      );
+    }
+
     res.status(200).json(questions);
   } catch (err) {
+    console.error("Error fetching questions:", err);
     res.status(500).json({ message: "Failed to fetch questions", error: err });
   }
 };
