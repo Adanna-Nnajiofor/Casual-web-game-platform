@@ -77,7 +77,9 @@ const socialLoginService = async (idToken) => {
             user = new user_model_1.default({
                 username: name || email.split("@")[0],
                 email,
-                provider: (firebase === null || firebase === void 0 ? void 0 : firebase.sign_in_provider) || "social",
+                provider: ["google.com", "facebook.com"].includes(firebase === null || firebase === void 0 ? void 0 : firebase.sign_in_provider)
+                    ? firebase.sign_in_provider.replace(".com", "")
+                    : "google",
                 avatar: picture,
                 firebaseUid: uid,
                 lastLogin: new Date(),
