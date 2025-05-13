@@ -8,7 +8,7 @@ export interface IUser extends Document {
   password?: string;
   provider: "google" | "facebook" | "local";
   avatar?: string;
-  firebaseUid: string; // Firebase user ID (for social logins)
+  firebaseUid?: string; // Firebase user ID (for social logins)
   lastLogin: Date;
   stats: {
     totalGamesPlayed: number;
@@ -53,6 +53,7 @@ const UserSchema: Schema = new Schema(
     },
     firebaseUid: {
       type: String,
+      sparse: true,
       unique: true,
     },
     lastLogin: {
