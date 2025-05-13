@@ -17,7 +17,6 @@ const feedback_routes_1 = __importDefault(require("./routes/feedback.routes"));
 const trivia_routes_1 = __importDefault(require("./routes/trivia.routes"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const yamljs_1 = __importDefault(require("yamljs"));
-const db_1 = __importDefault(require("./config/db"));
 const streetz_routes_1 = __importDefault(require("./routes/streetz.routes"));
 const app = (0, express_1.default)();
 app.set("trust proxy", 1);
@@ -26,7 +25,7 @@ const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(),
 // Middleware
 app.use((0, cors_1.default)({ origin: process.env.CORS_ORIGIN }));
 app.use(express_1.default.json());
-(0, db_1.default)();
+// connectDB();
 // Routes
 app.use("/auth", auth_routes_1.default);
 app.use("/games", game_routes_1.default);

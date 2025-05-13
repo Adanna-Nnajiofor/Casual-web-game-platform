@@ -7,11 +7,11 @@ import {
   cancelRequest,
   seeOnlineFriends,
 } from "../controllers/friends.controller";
-// import { rateLimiter } from "../utils/rateLimiter";
+import { rateLimiter } from "../utils/rateLimiter";
 
 const router = Router();
 
-// router.use(rateLimiter);
+router.use(rateLimiter);
 
 // Search for users by username (authentication required)
 router.get("/search", authenticate, searchUsers);
