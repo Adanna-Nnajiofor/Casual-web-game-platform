@@ -7,12 +7,12 @@ import {
   getUserScore,
   getUserRank,
 } from "../controllers/leaderboard.controller";
-import { rateLimiter } from "../utils/rateLimiter";
+// import { rateLimiter } from "../utils/rateLimiter";
 
 const router = express.Router();
 
 // Apply rate limiter globally to all routes
-router.use(rateLimiter);
+// router.use(rateLimiter);
 
 // GET leaderboard for a specific game (public)
 router.get("/:gameId", getLeaderboard);

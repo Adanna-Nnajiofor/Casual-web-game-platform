@@ -17,7 +17,7 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
