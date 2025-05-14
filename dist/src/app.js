@@ -20,38 +20,17 @@ const yamljs_1 = __importDefault(require("yamljs"));
 const db_1 = __importDefault(require("./config/db"));
 const streetz_routes_1 = __importDefault(require("./routes/streetz.routes"));
 const app = (0, express_1.default)();
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    console.log("CORS Headers Set");
-    next();
-});
 app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(), "src/swagger.yaml"));
-// Middleware
-// app.use(
-//   cors({
-//     origin: true,
-//     credentials: true,
-//   })
-// );
-// app.use(
-//   cors({
-//     origin: "https://ezzzinne.github.io",
-//     credentials: true,
-//   })
-// );
-app.use((0, cors_1.default)({
-    origin: function (origin, callback) {
-        console.log("Request from origin:", origin);
-        callback(null, true);
-    },
-    credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-}));
+const corsOptions = {
+    origin: "*",
+    methods: "GET, POST, PUT, DELETE",
+    allowedHeaders: "Content-Type, Authorization",
+};
+//middleware
+app.use((0, cors_1.default)(corsOptions));
+app.options("*", (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 (0, db_1.default)();
 // Routes
