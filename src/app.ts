@@ -17,11 +17,6 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
-app.set("trust proxy", 1);
-
-// Swagger docs
-const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
-
 const corsOptions = {
   origin: "*",
   methods: "GET, POST, PUT, DELETE",
@@ -31,6 +26,11 @@ const corsOptions = {
 //middleware
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
+app.set("trust proxy", 1);
+
+// Swagger docs
+const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 app.use(express.json());
 
