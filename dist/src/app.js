@@ -23,14 +23,14 @@ const app = (0, express_1.default)();
 app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(), "src/swagger.yaml"));
-// Middleware
-app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        callback(null, origin);
-    },
-    credentials: true,
-}));
-app.options("*", (0, cors_1.default)());
+const corsOptions = {
+    origin: "*",
+    methods: "GET, POST, PUT, DELETE",
+    allowedHeaders: "Content-Type, Authorization",
+};
+//middleware
+app.use((0, cors_1.default)(corsOptions));
+app.options("*", (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 (0, db_1.default)();
 // Routes

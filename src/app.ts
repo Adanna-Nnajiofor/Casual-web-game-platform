@@ -22,33 +22,15 @@ app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
-// Middleware
-// app.use(
-//   cors({
-//     origin: true,
-//     credentials: true,
-//   })
-// );
+const corsOptions = {
+  origin: "*",
+  methods: "GET, POST, PUT, DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+};
 
-// app.use(
-//   cors({
-//     origin: "https://ezzzinne.github.io",
-//     credentials: true,
-//   })
-// );
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      return callback(null, true);
-    },
-    credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders:
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  })
-);
+//middleware
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
