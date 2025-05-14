@@ -1,6 +1,6 @@
 import { TriviaService } from "../../services/trivia.service";
 import { QuestionModel } from "../../models/Question.model";
-import { admin } from "../../config/firebase-admin";
+// import { admin } from "../../config/firebase-admin";
 import { calculateTriviaScore } from "../../utils/score.utils";
 
 // Mock Firestore
@@ -19,108 +19,89 @@ jest.mock("../../config/firebase-admin", () => {
 // Mock QuestionModel
 jest.mock("../../models/Question.model.ts", () => ({
   QuestionModel: {
+    getRandomQuestions: jest.fn(),
     getRandomQuestionsByCategory: jest.fn(),
   },
 }));
 
-// Mock calculateTriviaScore utility function
+// Mock calculateTriviaScore
 jest.mock("../../utils/score.utils", () => ({
   calculateTriviaScore: jest.fn(),
 }));
 
 describe("TriviaService", () => {
-  describe("fetchQuestions", () => {
-    it("should return questions from the model", async () => {
-      const mockQuestions = [{ id: "1", question: "Test?", answer: "A" }];
+  describe("fetchAllQuestions", () => {
+    it("should return all questions if no category is provided", async () => {
+      const mockQuestions = [
+        { id: "1", question: "What is 2+2?", answer: "4" },
+      ];
+      (QuestionModel.getRandomQuestions as jest.Mock).mockResolvedValue(
+        mockQuestions
+      );
+
+      const result = await TriviaService.fetchAllQuestions(3);
+
+      expect(QuestionModel.getRandomQuestions).toHaveBeenCalledWith(3);
+      expect(result).toEqual(mockQuestions);
+    });
+  });
+
+  describe("fetchQuestionsByCategory", () => {
+    it("should return category-specific questions", async () => {
+      const mockQuestions = [
+        { id: "2", question: "Capital of France?", answer: "Paris" },
+      ];
       (
         QuestionModel.getRandomQuestionsByCategory as jest.Mock
       ).mockResolvedValue(mockQuestions);
 
-      const result = await TriviaService.fetchQuestions("Science", 3);
+      const result = await TriviaService.fetchQuestionsByCategory(
+        "Geography",
+        2
+      );
 
       expect(QuestionModel.getRandomQuestionsByCategory).toHaveBeenCalledWith(
-        "Science",
-        3
+        "Geography",
+        2
       );
       expect(result).toEqual(mockQuestions);
     });
   });
 
   describe("evaluateAnswers", () => {
-    it("should evaluate answers and return score summary", async () => {
-      const mockAnswerData = {
-        answer: "A",
-      };
-
-      const mockDoc = {
-        data: jest.fn().mockReturnValue(mockAnswerData),
-      };
-
-      const firestore = admin.firestore();
-      // Fix: Mock collection path
-      (firestore.collection as jest.Mock).mockReturnValue({
-        doc: jest.fn().mockReturnThis(),
-        get: jest.fn().mockResolvedValue(mockDoc),
-      });
-
-      const answers = [
-        { questionId: "q1", selected: "A" }, // correct
-        { questionId: "q2", selected: "B" }, // wrong
+    it("should evaluate answers and return the score summary", async () => {
+      const mockAnswers = [
+        { questionId: "q1", selected: "A" },
+        { questionId: "q2", selected: "B" },
       ];
 
-      // Mock the calculateTriviaScore function to return a fixed result
-      (calculateTriviaScore as jest.Mock).mockResolvedValue({
-        score: 10,
-        correctAnswers: 1,
+      const mockScoreResult = {
+        score: 20,
+        correctAnswers: 2,
         total: 2,
-      });
+      };
 
-      const result = await TriviaService.evaluateAnswers(answers);
+      (calculateTriviaScore as jest.Mock).mockResolvedValue(mockScoreResult);
 
-      expect(calculateTriviaScore).toHaveBeenCalledWith(answers);
-      expect(result).toEqual({
-        score: 10,
-        correctAnswers: 1,
-        total: 2,
-      });
+      const result = await TriviaService.evaluateAnswers(mockAnswers);
+
+      expect(calculateTriviaScore).toHaveBeenCalledWith(mockAnswers);
+      expect(result).toEqual(mockScoreResult);
     });
 
-    it("should throw an error if calculateTriviaScore fails", async () => {
-      const mockAnswerData = {
-        answer: "A",
-      };
-
-      const mockDoc = {
-        data: jest.fn().mockReturnValue(mockAnswerData),
-      };
-
-      const firestore = admin.firestore();
-      // Fix: Mock collection path
-      (firestore.collection as jest.Mock).mockReturnValue({
-        doc: jest.fn().mockReturnThis(),
-        get: jest.fn().mockResolvedValue(mockDoc),
-      });
-
+    it("should throw an error if score calculation fails", async () => {
       const answers = [
-        { questionId: "q1", selected: "A" }, // correct
-        { questionId: "q2", selected: "B" }, // wrong
+        { questionId: "q1", selected: "A" },
+        { questionId: "q2", selected: "C" },
       ];
 
-      // Simulate error in calculateTriviaScore
       (calculateTriviaScore as jest.Mock).mockRejectedValue(
-        new Error("Error calculating score")
+        new Error("Score calc failed")
       );
 
-      try {
-        await TriviaService.evaluateAnswers(answers);
-      } catch (error) {
-        // Fix: Type narrow the error
-        if (error instanceof Error) {
-          expect(error.message).toBe(
-            "Failed to calculate score: Error calculating score"
-          );
-        }
-      }
+      await expect(TriviaService.evaluateAnswers(answers)).rejects.toThrow(
+        "Failed to calculate score: Score calc failed"
+      );
     });
   });
 });
