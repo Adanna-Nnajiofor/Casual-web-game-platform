@@ -17,49 +17,20 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  console.log("CORS Headers Set");
-  next();
-});
-
 app.set("trust proxy", 1);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
-// Middleware
-// app.use(
-//   cors({
-//     origin: true,
-//     credentials: true,
-//   })
-// );
+const corsOptions = {
+  origin: "*",
+  methods: "GET, POST, PUT, DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+};
 
-// app.use(
-//   cors({
-//     origin: "https://ezzzinne.github.io",
-//     credentials: true,
-//   })
-// );
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      console.log("Request from origin:", origin);
-      callback(null, true);
-    },
-    credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders:
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  })
-);
+//middleware
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
