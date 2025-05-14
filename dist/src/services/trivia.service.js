@@ -4,18 +4,13 @@ exports.TriviaService = void 0;
 const Question_model_1 = require("../models/Question.model");
 const score_utils_1 = require("../utils/score.utils");
 class TriviaService {
-    // Fetching random questions by category and count
-    static async fetchQuestions(category, count) {
-        if (category) {
-            console.log("Fetching questions for category:", category);
-            // Fetch questions by the category if a category is specified
-            return Question_model_1.QuestionModel.getRandomQuestionsByCategory(category, count);
-        }
-        else {
-            console.log("Fetching all questions without category filter");
-            // Fetch all questions if no category is specified
-            return Question_model_1.QuestionModel.getAllQuestions(count);
-        }
+    // Fetch all random questions (any category)
+    static async fetchAllQuestions(count) {
+        return Question_model_1.QuestionModel.getRandomQuestions(count);
+    }
+    // Fetch questions by category
+    static async fetchQuestionsByCategory(category, count) {
+        return Question_model_1.QuestionModel.getRandomQuestionsByCategory(category, count);
     }
     // Evaluating answers and calculating the score using the calculateTriviaScore utility
     static async evaluateAnswers(answers) {

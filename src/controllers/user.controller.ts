@@ -20,9 +20,12 @@ export const createUser = async (
 
     let avatarUrl = avatar;
 
-    if (req.files && (req.files as { avatar?: Express.Multer.File[] }).avatar) {
-      const file = (req.files as { avatar: Express.Multer.File[] }).avatar[0];
-      avatarUrl = await AvatarService.uploadAvatar(file);
+    if (req.files && "avatar" in req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const file = files.avatar?.[0];
+      if (file) {
+        avatarUrl = await AvatarService.uploadAvatar(file);
+      }
     }
 
     const newUser = await UserService.createUser(
@@ -88,9 +91,12 @@ export const updateUser = async (
   try {
     let avatarUrl = avatar;
 
-    if (req.files && (req.files as { avatar?: Express.Multer.File[] }).avatar) {
-      const file = (req.files as { avatar: Express.Multer.File[] }).avatar[0];
-      avatarUrl = await AvatarService.uploadAvatar(file);
+    if (req.files && "avatar" in req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const file = files.avatar?.[0];
+      if (file) {
+        avatarUrl = await AvatarService.uploadAvatar(file);
+      }
     }
 
     const updatedUser = await UserService.updateUser(
