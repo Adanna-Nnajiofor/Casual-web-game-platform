@@ -25,9 +25,7 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 // Middleware
 app.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, origin);
-    },
+    origin: true,
     credentials: true,
   })
 );
