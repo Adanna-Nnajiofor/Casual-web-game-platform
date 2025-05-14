@@ -30,14 +30,25 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 //   })
 // );
 
+// app.use(
+//   cors({
+//     origin: "https://ezzzinne.github.io",
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
-    origin: "https://ezzzinne.github.io",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
     credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders:
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   })
 );
-
-app.options("*", cors());
 
 app.use(express.json());
 
