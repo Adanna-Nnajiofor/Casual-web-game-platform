@@ -22,21 +22,25 @@ app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",");
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
 
 // Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins?.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
+app.options("*", cors());
+
 app.use(express.json());
 
 connectDB();
