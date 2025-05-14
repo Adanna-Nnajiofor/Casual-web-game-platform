@@ -2,6 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -17,15 +18,29 @@ const feedback_routes_1 = __importDefault(require("./routes/feedback.routes"));
 const trivia_routes_1 = __importDefault(require("./routes/trivia.routes"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const yamljs_1 = __importDefault(require("yamljs"));
+const db_1 = __importDefault(require("./config/db"));
 const streetz_routes_1 = __importDefault(require("./routes/streetz.routes"));
 const app = (0, express_1.default)();
 app.set("trust proxy", 1);
 // Swagger docs
 const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(), "src/swagger.yaml"));
+const allowedOrigins = ((_a = process.env.CORS_ORIGIN) === null || _a === void 0 ? void 0 : _a.split(",")) || [];
 // Middleware
-app.use((0, cors_1.default)({ origin: process.env.CORS_ORIGIN }));
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            console.error("Blocked by CORS:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+}));
+app.options("*", (0, cors_1.default)());
 app.use(express_1.default.json());
-// connectDB();
+(0, db_1.default)();
 // Routes
 app.use("/auth", auth_routes_1.default);
 app.use("/games", game_routes_1.default);
