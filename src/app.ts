@@ -23,14 +23,17 @@ app.set("trust proxy", 1);
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 // Middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      callback(null, origin);
-    },
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: true,
+//     credentials: true,
+//   })
+// );
+
+cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+});
 
 app.options("*", cors());
 
