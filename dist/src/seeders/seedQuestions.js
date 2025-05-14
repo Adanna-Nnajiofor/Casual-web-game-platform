@@ -81,7 +81,7 @@ const questions = [
         category: "Music",
     },
     {
-        question: "What’s the title of Wizkid’s first album?",
+        question: "What is the title of Wizkid’s first album?",
         options: ["Superstar", "Made in Lagos", "Sound from the Other Side", "Ayo"],
         answer: "Superstar",
         category: "Music",
@@ -141,7 +141,7 @@ const questions = [
         category: "Food",
     },
     {
-        question: "What’s the popular street food combo called “Boli”?",
+        question: "What is the popular street food combo called “Boli”?",
         options: ["Roasted Plantain", "Fried Yam", "Grilled Fish", "Puff-Puff"],
         answer: "Roasted Plantain",
         category: "Food",
@@ -265,7 +265,7 @@ const questions = [
         category: "Pop Culture",
     },
     {
-        question: "What’s the name of the annual carnival in Cross River?",
+        question: "What is the name of the annual carnival in Cross River?",
         options: [
             "Lagos Carnival",
             "Calabar Carnival",
