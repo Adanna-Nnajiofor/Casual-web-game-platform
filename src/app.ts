@@ -18,7 +18,7 @@ import streetzRoutes from "./routes/streetz.routes";
 const app: Application = express();
 
 const corsOptions = {
-  origin: "*",
+  origin: ["https://ezzzinne.github.io", "http://localhost:5173", "*"],
   methods: "GET, POST, PUT, DELETE",
   allowedHeaders: "Content-Type, Authorization",
 };
