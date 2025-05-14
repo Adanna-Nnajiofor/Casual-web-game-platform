@@ -17,6 +17,17 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  console.log("CORS Headers Set");
+  next();
+});
+
 app.set("trust proxy", 1);
 
 // Swagger docs
@@ -40,8 +51,8 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      return callback(null, true);
+      console.log("Request from origin:", origin);
+      callback(null, true);
     },
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
