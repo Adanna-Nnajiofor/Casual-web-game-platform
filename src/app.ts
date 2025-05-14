@@ -30,10 +30,12 @@ const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 //   })
 // );
 
-cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-});
+app.use(
+  cors({
+    origin: "https://ezzzinne.github.io",
+    credentials: true,
+  })
+);
 
 app.options("*", cors());
 
