@@ -25,9 +25,9 @@ const corsOptions = {
 
 //middleware
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// app.options("*", cors(corsOptions));
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
