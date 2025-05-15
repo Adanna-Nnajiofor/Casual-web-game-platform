@@ -91,7 +91,7 @@ export const getGamesByType = async (
 
     // For trivia type, include questions
     if (type === "trivia") {
-      const questionsSnapshot = await db.collection("trivia-questions").get();
+      const questionsSnapshot = await db.collection("questions").get();
       const questions = questionsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),

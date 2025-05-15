@@ -3,9 +3,24 @@ info:
   title: Casual Game Platform API
   version: 1.0.0
   description: API documentation for the casual game platform
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+  - url: https://casual-web-game-platform.onrender.com
+    description: Production server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
 paths:
-  /auth/register:
+  /api/auth/register:
     post:
+      tags:
+        - Authentication
       summary: Register a new user
       requestBody:
         required: true
@@ -22,11 +37,13 @@ paths:
                   type: string
       responses:
         "201":
-          description: User registered
+          description: User registered successfully
         "400":
           description: User already exists
-  /auth/login:
+  /api/auth/login:
     post:
+      tags:
+        - Authentication
       summary: Login a user
       requestBody:
         required: true
@@ -44,14 +61,18 @@ paths:
           description: Login successful
         "400":
           description: Invalid credentials
-  /games:
+  /api/games:
     get:
+      tags:
+        - Games
       summary: Get all games
       responses:
         "200":
           description: List of all games
-  /games/{slug}:
+  /api/games/{slug}:
     get:
+      tags:
+        - Games
       summary: Get a game by its slug
       parameters:
         - name: slug
@@ -64,8 +85,10 @@ paths:
           description: The game details
         "404":
           description: Game not found
-  /sessions:
+  /api/sessions:
     post:
+      tags:
+        - Sessions
       summary: Save a user's session
       requestBody:
         required: true
@@ -88,17 +111,25 @@ paths:
                   type: boolean
       responses:
         "201":
-          description: Session saved
+          description: Session saved successfully
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
 
-  /user:
+  /api/user:
     get:
+      tags:
+        - Users
       summary: Get all users
       responses:
         "200":
           description: List of users
 
-  /user/{userId}:
+  /api/user/{userId}:
     get:
+      tags:
+        - Users
       summary: Get a user by ID
       parameters:
         - in: path
@@ -113,6 +144,8 @@ paths:
           description: User not found
 
     put:
+      tags:
+        - Users
       summary: Update a user
       parameters:
         - in: path
@@ -135,11 +168,13 @@ paths:
                   type: string
       responses:
         "200":
-          description: User updated
+          description: User updated successfully
         "404":
           description: User not found
 
     delete:
+      tags:
+        - Users
       summary: Delete a user
       parameters:
         - in: path
@@ -149,12 +184,14 @@ paths:
             type: string
       responses:
         "200":
-          description: User deleted
+          description: User deleted successfully
         "404":
           description: User not found
 
-  /user/{userId}/stats:
+  /api/user/{userId}/stats:
     patch:
+      tags:
+        - Users
       summary: Update user stats
       parameters:
         - in: path
@@ -179,12 +216,14 @@ paths:
                     type: string
       responses:
         "200":
-          description: Stats updated
+          description: Stats updated successfully
         "404":
           description: User not found
 
-  /user/{userId}/friends:
+  /api/user/{userId}/friends:
     post:
+      tags:
+        - Friends
       summary: Add a friend
       parameters:
         - in: path
@@ -203,14 +242,16 @@ paths:
                   type: string
       responses:
         "200":
-          description: Friend added
+          description: Friend added successfully
         "404":
           description: User or friend not found
         "400":
           description: Cannot add yourself
 
-  /leaderboard/{gameId}:
+  /api/leaderboard/{gameId}:
     get:
+      tags:
+        - Leaderboard
       summary: Get leaderboard for a game
       parameters:
         - in: path
@@ -220,12 +261,14 @@ paths:
             type: string
       responses:
         "200":
-          description: Leaderboard data
+          description: Leaderboard data retrieved successfully
         "500":
           description: Failed to fetch leaderboard
 
-  /leaderboard:
+  /api/leaderboard:
     post:
+      tags:
+        - Leaderboard
       summary: Submit score to leaderboard
       requestBody:
         required: true
@@ -240,7 +283,7 @@ paths:
                   type: integer
       responses:
         "201":
-          description: Score submitted
+          description: Score submitted successfully
         "401":
           description: Unauthorized
         "404":

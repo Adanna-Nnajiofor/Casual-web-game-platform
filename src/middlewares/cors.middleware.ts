@@ -1,50 +1,54 @@
 import { Request, Response, NextFunction } from "express";
 
-export const ensureCors = (
+const allowedOrigins = [
+  "https://ezzzinne.github.io",
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "http://localhost:3000",
+  "https://casual-web-game-platform.onrender.com",
+];
+
+export const corsMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  // Only log path, not full URL to avoid path-to-regexp issues
+) => {
+  const origin = req.headers.origin;
+
+  // Debug logging
   console.log("CORS Middleware - Request:", {
+    origin,
     method: req.method,
     path: req.path,
   });
 
-  const allowedOrigins = [
-    "https://ezzzinne.github.io",
-    "http://localhost:5173",
-  ];
-  const origin = req.headers.origin;
-
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    if (origin && allowedOrigins.includes(origin)) {
-      setCorsHeaders(res, origin);
-    }
-    res.status(204).end();
-    return;
-  }
-
-  // Handle actual request
+  // Set CORS headers
   if (origin && allowedOrigins.includes(origin)) {
-    setCorsHeaders(res, origin);
+    // Allow the specific origin
+    res.header("Access-Control-Allow-Origin", origin);
+  } else {
+    // If origin is not in the list, use the first allowed origin as default
+    res.header("Access-Control-Allow-Origin", allowedOrigins[0]);
   }
 
-  next();
-};
-
-function setCorsHeaders(res: Response, origin: string): void {
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Credentials", "true");
+  // Required CORS headers
   res.header(
     "Access-Control-Allow-Methods",
     "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS"
   );
   res.header(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, Accept, X-Requested-With"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Auth-Token"
   );
-  res.header("Access-Control-Max-Age", "86400"); // 24 hours
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Expose-Headers", "Authorization, X-Auth-Token");
   res.header("Vary", "Origin");
-}
+
+  // Handle preflight
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+
+  next();
+};
