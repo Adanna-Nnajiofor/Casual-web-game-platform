@@ -6,9 +6,16 @@ import {
   loginUserService,
   socialLoginService,
 } from "../services/auth.service";
+import { setCorsHeaders } from "../config/cors.config";
 
 // REGISTER CONTROLLER
 export const registerUser: RequestHandler = async (req, res): Promise<void> => {
+  console.log("Register Request:", {
+    headers: req.headers,
+    method: req.method,
+    origin: req.headers.origin,
+  });
+
   // Validate the registration data using the registerSchema
   const validation = validate(registerSchema, req.body);
 
@@ -29,6 +36,9 @@ export const registerUser: RequestHandler = async (req, res): Promise<void> => {
       password
     );
 
+    // Set CORS headers
+    setCorsHeaders(req, res);
+
     res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -39,6 +49,7 @@ export const registerUser: RequestHandler = async (req, res): Promise<void> => {
       token,
     });
   } catch (error: any) {
+    console.error("Registration error:", error);
     res.status(400).json({
       message: error.message || "Registration failed",
     });
@@ -47,6 +58,12 @@ export const registerUser: RequestHandler = async (req, res): Promise<void> => {
 
 // LOGIN CONTROLLER
 export const loginUser: RequestHandler = async (req, res): Promise<void> => {
+  console.log("Login Request:", {
+    headers: req.headers,
+    method: req.method,
+    origin: req.headers.origin,
+  });
+
   const validation = validate(loginSchema, req.body);
 
   if (!validation.success) {
@@ -65,6 +82,9 @@ export const loginUser: RequestHandler = async (req, res): Promise<void> => {
       password
     );
 
+    // Set CORS headers
+    setCorsHeaders(req, res);
+
     res.status(200).json({
       message: welcomeMessage,
       user: {
@@ -75,6 +95,7 @@ export const loginUser: RequestHandler = async (req, res): Promise<void> => {
       token,
     });
   } catch (error: any) {
+    console.error("Login error:", error);
     res.status(401).json({
       message: error.message || "Login failed",
     });
@@ -93,6 +114,9 @@ export const socialLogin: RequestHandler = async (req, res): Promise<void> => {
   try {
     const { token, user } = await socialLoginService(idToken);
 
+    // Set CORS headers
+    setCorsHeaders(req, res);
+
     res.status(200).json({
       message: `Welcome ${user.username}`,
       token,
@@ -104,6 +128,7 @@ export const socialLogin: RequestHandler = async (req, res): Promise<void> => {
       },
     });
   } catch (error: any) {
+    console.error("Social login error:", error);
     res.status(401).json({ message: error.message || "Social login failed" });
   }
 };

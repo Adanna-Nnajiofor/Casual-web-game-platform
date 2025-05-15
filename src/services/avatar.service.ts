@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "../config/cloudinary";
 import { db } from "../config/firebase-admin";
 // import { IUser } from "../models/user.model";
 
@@ -6,22 +6,18 @@ export class AvatarService {
   /**
    * Upload avatar image to Cloudinary and return the image URL.
    *
-   * @param file - The file to upload (should be a single avatar file).
+   * @param base64Image - The base64 encoded image to upload.
    * @returns A promise that resolves to the avatar's secure URL.
    */
-  static async uploadAvatar(file: Express.Multer.File): Promise<string> {
+  static async uploadAvatar(base64Image: string): Promise<string> {
     try {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: "avatars/",
+      const result = await cloudinary.uploader.upload(base64Image, {
+        folder: "avatars",
       });
       return result.secure_url;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(
-          "Error uploading avatar to Cloudinary: " + error.message
-        );
-      }
-      throw new Error("Unknown error uploading avatar to Cloudinary.");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      throw new Error("Failed to upload avatar");
     }
   }
 
@@ -38,7 +34,7 @@ export class AvatarService {
     try {
       const userRef = db.collection("users").doc(userId);
       await userRef.update({
-        avatar: avatarUrl, // Update the avatar field with the new URL
+        avatar: avatarUrl,
       });
       console.log(`Avatar updated successfully for user with ID: ${userId}`);
     } catch (error: unknown) {
@@ -53,16 +49,16 @@ export class AvatarService {
    * Complete flow for uploading an avatar and updating the database.
    *
    * @param userId - The ID of the user whose avatar is being updated.
-   * @param file - The avatar file uploaded by the user.
+   * @param base64Image - The base64 encoded image of the avatar.
    * @returns A promise that resolves once the avatar is uploaded and the database is updated.
    */
   static async handleAvatarUpdate(
     userId: string,
-    file: Express.Multer.File
+    base64Image: string
   ): Promise<string> {
     try {
       // Upload avatar to Cloudinary
-      const avatarUrl = await this.uploadAvatar(file);
+      const avatarUrl = await this.uploadAvatar(base64Image);
 
       // Update the avatar URL in the database
       await this.updateAvatarInDb(userId, avatarUrl);

@@ -40,7 +40,6 @@ const avatar_service_1 = require("../services/avatar.service");
 const UserService = __importStar(require("../services/user.service"));
 // Create user
 const createUser = async (req, res, next) => {
-    var _a;
     const { username, email, password, avatar } = req.body;
     try {
         const existingUser = await UserService.getUserById(email);
@@ -48,12 +47,9 @@ const createUser = async (req, res, next) => {
             return next(new AppError_1.AppError("User already exists", 400));
         }
         let avatarUrl = avatar;
-        if (req.files && "avatar" in req.files) {
-            const files = req.files;
-            const file = (_a = files.avatar) === null || _a === void 0 ? void 0 : _a[0];
-            if (file) {
-                avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(file);
-            }
+        if (avatar && avatar.startsWith("data:image")) {
+            // If it's a base64 image, upload it
+            avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(avatar);
         }
         const newUser = await UserService.createUser({ username, email, password }, avatarUrl);
         res.status(201).json({ message: "User created", user: newUser });
@@ -94,7 +90,6 @@ const getUserById = async (req, res, next) => {
 exports.getUserById = getUserById;
 // Update user
 const updateUser = async (req, res, next) => {
-    var _a;
     const { userId } = req.params;
     const { username, email, avatar } = req.body;
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
@@ -102,12 +97,9 @@ const updateUser = async (req, res, next) => {
     }
     try {
         let avatarUrl = avatar;
-        if (req.files && "avatar" in req.files) {
-            const files = req.files;
-            const file = (_a = files.avatar) === null || _a === void 0 ? void 0 : _a[0];
-            if (file) {
-                avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(file);
-            }
+        if (avatar && avatar.startsWith("data:image")) {
+            // If it's a base64 image, upload it
+            avatarUrl = await avatar_service_1.AvatarService.uploadAvatar(avatar);
         }
         const updatedUser = await UserService.updateUser(userId, { username, email }, avatarUrl);
         if (!updatedUser) {

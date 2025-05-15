@@ -6,6 +6,12 @@ const trivia_service_1 = require("../services/trivia.service");
 // Get all or category-specific questions
 const getQuestions = async (req, res) => {
     const { category, count = 10 } = req.query;
+    console.log("Trivia Questions Request:", {
+        category,
+        count,
+        headers: req.headers,
+        method: req.method,
+    });
     try {
         let questions;
         if (category) {
@@ -14,9 +20,14 @@ const getQuestions = async (req, res) => {
         else {
             questions = await trivia_service_1.TriviaService.fetchAllQuestions(Number(count));
         }
+        console.log(`Successfully fetched ${questions.length} questions`);
+        // Set explicit headers again just to be sure
+        res.header("Access-Control-Allow-Origin", req.headers.origin || "https://ezzzinne.github.io");
+        res.header("Access-Control-Allow-Credentials", "true");
         res.status(200).json(questions);
     }
     catch (err) {
+        console.error("Error fetching questions:", err);
         res.status(500).json({ message: "Failed to fetch questions", error: err });
     }
 };

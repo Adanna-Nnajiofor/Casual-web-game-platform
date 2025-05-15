@@ -1,28 +1,29 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AvatarService = void 0;
-const cloudinary_1 = require("cloudinary");
+const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const firebase_admin_1 = require("../config/firebase-admin");
 // import { IUser } from "../models/user.model";
 class AvatarService {
     /**
      * Upload avatar image to Cloudinary and return the image URL.
      *
-     * @param file - The file to upload (should be a single avatar file).
+     * @param base64Image - The base64 encoded image to upload.
      * @returns A promise that resolves to the avatar's secure URL.
      */
-    static async uploadAvatar(file) {
+    static async uploadAvatar(base64Image) {
         try {
-            const result = await cloudinary_1.v2.uploader.upload(file.path, {
-                folder: "avatars/",
+            const result = await cloudinary_1.default.uploader.upload(base64Image, {
+                folder: "avatars",
             });
             return result.secure_url;
         }
         catch (error) {
-            if (error instanceof Error) {
-                throw new Error("Error uploading avatar to Cloudinary: " + error.message);
-            }
-            throw new Error("Unknown error uploading avatar to Cloudinary.");
+            console.error("Error uploading avatar:", error);
+            throw new Error("Failed to upload avatar");
         }
     }
     /**
@@ -35,7 +36,7 @@ class AvatarService {
         try {
             const userRef = firebase_admin_1.db.collection("users").doc(userId);
             await userRef.update({
-                avatar: avatarUrl, // Update the avatar field with the new URL
+                avatar: avatarUrl,
             });
             console.log(`Avatar updated successfully for user with ID: ${userId}`);
         }
@@ -50,13 +51,13 @@ class AvatarService {
      * Complete flow for uploading an avatar and updating the database.
      *
      * @param userId - The ID of the user whose avatar is being updated.
-     * @param file - The avatar file uploaded by the user.
+     * @param base64Image - The base64 encoded image of the avatar.
      * @returns A promise that resolves once the avatar is uploaded and the database is updated.
      */
-    static async handleAvatarUpdate(userId, file) {
+    static async handleAvatarUpdate(userId, base64Image) {
         try {
             // Upload avatar to Cloudinary
-            const avatarUrl = await this.uploadAvatar(file);
+            const avatarUrl = await this.uploadAvatar(base64Image);
             // Update the avatar URL in the database
             await this.updateAvatarInDb(userId, avatarUrl);
             // Return the URL of the updated avatar

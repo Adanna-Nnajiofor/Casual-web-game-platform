@@ -20,12 +20,9 @@ export const createUser = async (
 
     let avatarUrl = avatar;
 
-    if (req.files && "avatar" in req.files) {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const file = files.avatar?.[0];
-      if (file) {
-        avatarUrl = await AvatarService.uploadAvatar(file);
-      }
+    if (avatar && avatar.startsWith("data:image")) {
+      // If it's a base64 image, upload it
+      avatarUrl = await AvatarService.uploadAvatar(avatar);
     }
 
     const newUser = await UserService.createUser(
@@ -91,12 +88,9 @@ export const updateUser = async (
   try {
     let avatarUrl = avatar;
 
-    if (req.files && "avatar" in req.files) {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const file = files.avatar?.[0];
-      if (file) {
-        avatarUrl = await AvatarService.uploadAvatar(file);
-      }
+    if (avatar && avatar.startsWith("data:image")) {
+      // If it's a base64 image, upload it
+      avatarUrl = await AvatarService.uploadAvatar(avatar);
     }
 
     const updatedUser = await UserService.updateUser(

@@ -33,24 +33,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auth = exports.db = exports.admin = void 0;
-const admin = __importStar(require("firebase-admin"));
-exports.admin = admin;
-const dotenv = __importStar(require("dotenv"));
-dotenv.config();
-const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-// console.log('serviceAccountString:', serviceAccountString)
-if (!serviceAccountString) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is not defined in environment variables");
-}
-const serviceAccount = JSON.parse(serviceAccountString);
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://casual-web-game-default-rtdb.firebaseio.com",
-    });
-}
-const db = admin.firestore();
-exports.db = db;
-const auth = admin.auth();
-exports.auth = auth;
+// models/streetz.ts
+const mongoose_1 = __importStar(require("mongoose"));
+const streetzSchema = new mongoose_1.Schema({
+    word: { type: String, required: true },
+    meaning: { type: String, required: true },
+    difficulty: { type: String, enum: ['easy', 'medium', 'hard'], required: true }
+});
+const StreetzWord = mongoose_1.default.model('StreetzWord', streetzSchema);
+exports.default = StreetzWord;

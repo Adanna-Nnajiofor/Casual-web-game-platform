@@ -14,53 +14,76 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import connectDB from "./config/db";
 import streetzRoutes from "./routes/streetz.routes";
+import { corsConfig, setCorsHeaders } from "./config/cors.config";
 
 const app: Application = express();
 
-const corsOptions = {
-  origin: [
-    "https://ezzzinne.github.io",
-    "http://localhost:5173",
-    "https://casual-web-game-platform.onrender.com",
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["Content-Range", "X-Content-Range"],
-  maxAge: 86400, // 24 hours
-};
-
-//middleware
-app.use(cors(corsOptions));
-
+// Trust proxy - important for Render.com
 app.set("trust proxy", 1);
 
-// Swagger docs
-const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
+// CORS middleware - must be before any routes
+app.use(cors(corsConfig));
 
-app.use(express.json());
+// Add CORS headers to all responses
+app.use((req: Request, res: Response, next) => {
+  setCorsHeaders(req, res);
+  next();
+});
 
+// Detailed request logging middleware
+app.use((req: Request, res: Response, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log("Headers:", req.headers);
+  next();
+});
+
+// Body parser middleware
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Connect to database
 connectDB();
 
-// Routes
-app.use("/auth", authRoutes);
-app.use("/games", gameRoutes);
-app.use("/sessions", sessionRoutes);
-app.use("/leaderboard", leaderboardRoutes);
-app.use("/user", userRoutes);
-app.use("/friends", friendsRoutes);
-app.use("/feedback", feedbackRoutes);
-app.use("/trivia", triviaRoutes);
-app.use("/streetz", streetzRoutes);
+// Load Swagger document
+const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
-// Swagger documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Mount API routes with logging
+app.use(
+  "/api/games",
+  (req: Request, res: Response, next) => {
+    console.log("Games route hit:", req.path);
+    next();
+  },
+  gameRoutes
+);
+
+app.use("/api/auth", authRoutes);
+app.use("/api/sessions", sessionRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/friends", friendsRoutes);
+app.use("/api/feedback", feedbackRoutes);
+app.use("/api/trivia", triviaRoutes);
+app.use("/api/streetz", streetzRoutes);
 
 // Health check
 app.get("/", (_req: Request, res: Response) => {
   res.send("Casual Web Game Platform Backend is running!");
 });
 
+// Swagger documentation
+app.use("/api-docs", swaggerUi.serve);
+app.get(
+  "/api-docs",
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    swaggerOptions: {
+      validatorUrl: null,
+    },
+  })
+);
+
+// Error handler - must be after all routes
 app.use(errorHandler);
 
 export default app;

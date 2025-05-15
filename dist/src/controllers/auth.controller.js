@@ -4,8 +4,14 @@ exports.socialLogin = exports.loginUser = exports.registerUser = void 0;
 const validate_1 = require("../utils/validate");
 const validate_2 = require("../utils/validate");
 const auth_service_1 = require("../services/auth.service");
+const cors_config_1 = require("../config/cors.config");
 // REGISTER CONTROLLER
 const registerUser = async (req, res) => {
+    console.log("Register Request:", {
+        headers: req.headers,
+        method: req.method,
+        origin: req.headers.origin,
+    });
     // Validate the registration data using the registerSchema
     const validation = (0, validate_1.validate)(validate_2.registerSchema, req.body);
     if (!validation.success) {
@@ -18,6 +24,8 @@ const registerUser = async (req, res) => {
     const { username, email, password } = validation.data;
     try {
         const { token, user } = await (0, auth_service_1.registerUserService)(username, email, password);
+        // Set CORS headers
+        (0, cors_config_1.setCorsHeaders)(req, res);
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -29,6 +37,7 @@ const registerUser = async (req, res) => {
         });
     }
     catch (error) {
+        console.error("Registration error:", error);
         res.status(400).json({
             message: error.message || "Registration failed",
         });
@@ -37,6 +46,11 @@ const registerUser = async (req, res) => {
 exports.registerUser = registerUser;
 // LOGIN CONTROLLER
 const loginUser = async (req, res) => {
+    console.log("Login Request:", {
+        headers: req.headers,
+        method: req.method,
+        origin: req.headers.origin,
+    });
     const validation = (0, validate_1.validate)(validate_2.loginSchema, req.body);
     if (!validation.success) {
         res.status(400).json({
@@ -48,6 +62,8 @@ const loginUser = async (req, res) => {
     const { username, password } = validation.data;
     try {
         const { token, user, welcomeMessage } = await (0, auth_service_1.loginUserService)(username, password);
+        // Set CORS headers
+        (0, cors_config_1.setCorsHeaders)(req, res);
         res.status(200).json({
             message: welcomeMessage,
             user: {
@@ -59,6 +75,7 @@ const loginUser = async (req, res) => {
         });
     }
     catch (error) {
+        console.error("Login error:", error);
         res.status(401).json({
             message: error.message || "Login failed",
         });
@@ -74,6 +91,8 @@ const socialLogin = async (req, res) => {
     }
     try {
         const { token, user } = await (0, auth_service_1.socialLoginService)(idToken);
+        // Set CORS headers
+        (0, cors_config_1.setCorsHeaders)(req, res);
         res.status(200).json({
             message: `Welcome ${user.username}`,
             token,
@@ -86,6 +105,7 @@ const socialLogin = async (req, res) => {
         });
     }
     catch (error) {
+        console.error("Social login error:", error);
         res.status(401).json({ message: error.message || "Social login failed" });
     }
 };
