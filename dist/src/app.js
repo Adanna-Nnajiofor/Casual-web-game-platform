@@ -23,15 +23,33 @@ const cors_config_1 = require("./config/cors.config");
 const app = (0, express_1.default)();
 // Trust proxy - important for Render.com
 app.set("trust proxy", 1);
-// CORS configuration
+// Apply CORS configuration
 app.use((0, cors_1.default)(cors_config_1.corsConfig));
+// Pre-flight requests
+app.options("*", (0, cors_1.default)(cors_config_1.corsConfig));
 // Body parser middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 // Connect to database
 (0, db_1.default)();
-// Load Swagger document
-const swaggerDocument = yamljs_1.default.load(path_1.default.join(process.cwd(), "src/swagger.yaml"));
+// Health check route
+app.get("/", (_req, res) => {
+    res.send("Casual Web Game Platform Backend is running!");
+});
+// Setup Swagger documentation
+try {
+    const swaggerPath = path_1.default.join(process.cwd(), "src/swagger.yaml");
+    const swaggerDocument = yamljs_1.default.load(swaggerPath);
+    // Serve Swagger UI at /api-docs
+    app.use("/api-docs", swagger_ui_express_1.default.serve);
+    app.get("/api-docs", swagger_ui_express_1.default.setup(swaggerDocument, {
+        explorer: true,
+        customSiteTitle: "Casual Game Platform API Documentation",
+    }));
+}
+catch (error) {
+    console.error("Failed to load Swagger documentation:", error);
+}
 // Mount API routes
 app.use("/api/games", game_routes_1.default);
 app.use("/api/auth", auth_routes_1.default);
@@ -42,13 +60,6 @@ app.use("/api/friends", friends_routes_1.default);
 app.use("/api/feedback", feedback_routes_1.default);
 app.use("/api/trivia", trivia_routes_1.default);
 app.use("/api/streetz", streetz_routes_1.default);
-// Health check route
-app.get("/", (_req, res) => {
-    res.send("Casual Web Game Platform Backend is running!");
-});
-// Swagger documentation
-app.use("/api-docs", swagger_ui_express_1.default.serve);
-app.get("/api-docs", swagger_ui_express_1.default.setup(swaggerDocument));
 // Error handler
 app.use(error_handler_1.errorHandler);
 exports.default = app;
