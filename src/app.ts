@@ -18,16 +18,22 @@ import streetzRoutes from "./routes/streetz.routes";
 const app: Application = express();
 
 const corsOptions = {
-  origin: ["https://ezzzinne.github.io", "http://localhost:5173", "*"],
-  methods: "GET, POST, PUT, DELETE",
-  allowedHeaders: "Content-Type, Authorization",
+  origin: [
+    "https://ezzzinne.github.io",
+    "http://localhost:5173",
+    "https://casual-web-game-platform.onrender.com",
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  maxAge: 86400, // 24 hours
 };
 
 //middleware
 app.use(cors(corsOptions));
-// app.options("*", cors(corsOptions));
 
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
