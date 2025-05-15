@@ -5,7 +5,7 @@ const trivia_service_1 = require("../services/trivia.service");
 // Fetch questions for the game
 // Get all or category-specific questions
 const getQuestions = async (req, res) => {
-    const { category, count = 5 } = req.query;
+    const { category, count = 10 } = req.query;
     try {
         let questions;
         if (category) {
