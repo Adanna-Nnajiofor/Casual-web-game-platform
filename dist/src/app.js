@@ -27,6 +27,9 @@ app.set("trust proxy", 1);
 app.use((0, cors_1.default)(cors_config_1.corsConfig));
 // Add CORS headers to all responses
 app.use((req, res, next) => {
+    // Always set Vary header
+    res.header("Vary", "Origin");
+    // Set CORS headers
     (0, cors_config_1.setCorsHeaders)(req, res);
     next();
 });

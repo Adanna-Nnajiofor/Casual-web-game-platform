@@ -24,7 +24,7 @@ const getGameBySlug = async (req, res) => {
         }
         // If it's a trivia game, fetch questions from Firebase
         if (game.type === "trivia") {
-            const questionsSnapshot = await firebase_admin_1.db.collection("trivia-questions").get();
+            const questionsSnapshot = await firebase_admin_1.db.collection("questions").get();
             const questions = questionsSnapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
             // Return game info with questions
             res.status(200).json(Object.assign(Object.assign({}, game.toObject()), { questions }));
