@@ -4,7 +4,7 @@ import { TriviaService } from "../services/trivia.service";
 // Fetch questions for the game
 // Get all or category-specific questions
 export const getQuestions = async (req: Request, res: Response) => {
-  const { category, count = 5 } = req.query;
+  const { category, count = 10 } = req.query;
 
   try {
     let questions;
