@@ -11,7 +11,6 @@ import { rateLimiter } from "../utils/rateLimiter";
 
 const router = express.Router();
 
-// Apply rate limiter globally to all routes
 router.use(rateLimiter);
 
 // GET leaderboard for a specific game (public)

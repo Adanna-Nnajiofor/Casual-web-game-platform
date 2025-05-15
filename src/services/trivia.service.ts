@@ -2,8 +2,13 @@ import { QuestionModel } from "../models/Question.model";
 import { calculateTriviaScore } from "../utils/score.utils";
 
 export class TriviaService {
-  // Fetching random questions by category and count
-  static async fetchQuestions(category: string, count: number) {
+  // Fetch all random questions (any category)
+  static async fetchAllQuestions(count: number) {
+    return QuestionModel.getRandomQuestions(count);
+  }
+
+  // Fetch questions by category
+  static async fetchQuestionsByCategory(category: string, count: number) {
     return QuestionModel.getRandomQuestionsByCategory(category, count);
   }
 

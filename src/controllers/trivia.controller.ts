@@ -2,14 +2,21 @@ import { Request, Response } from "express";
 import { TriviaService } from "../services/trivia.service";
 
 // Fetch questions for the game
+// Get all or category-specific questions
 export const getQuestions = async (req: Request, res: Response) => {
-  const { category = "Music", count = 5 } = req.query;
+  const { category, count = 5 } = req.query;
+
   try {
-    // Call TriviaService to fetch questions
-    const questions = await TriviaService.fetchQuestions(
-      String(category),
-      Number(count)
-    );
+    let questions;
+    if (category) {
+      questions = await TriviaService.fetchQuestionsByCategory(
+        String(category),
+        Number(count)
+      );
+    } else {
+      questions = await TriviaService.fetchAllQuestions(Number(count));
+    }
+
     res.status(200).json(questions);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch questions", error: err });

@@ -15,7 +15,7 @@ const connectDB = async () => {
   // Skip connection in test environment to prevent crash
   if (process.env.NODE_ENV === "test") {
     console.log("Running in test environment - MongoDB not connected");
-    return; // Don't try to connect to the database during tests
+    return;
   }
 
   // Only connect if not in test environment
@@ -24,7 +24,7 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${isProd ? "Production" : "Local"} mode`);
   } catch (error) {
     console.error("MongoDB connection error:", error);
-    process.exit(1); // Exit process if connection fails
+    process.exit(1);
   }
 };
 

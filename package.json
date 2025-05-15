@@ -7,7 +7,13 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "dev": "ts-node-dev src/index.ts",
+<<<<<<< HEAD
     "seed": "ts-node src/seeders/seedQuestions.ts"
+=======
+    "seed": "ts-node src/seeders/seedQuestions.ts",
+    "seed:slangs": "ts-node src/seeders/seedSlangs.ts",
+    "fix:index": "ts-node scripts/fixFirebaseUidIndex.ts"
+>>>>>>> 40253fe23be5371806cdc1b1603021f00b7c8377
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

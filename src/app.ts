@@ -17,11 +17,21 @@ import streetzRoutes from "./routes/streetz.routes";
 
 const app: Application = express();
 
+const corsOptions = {
+  origin: ["https://ezzzinne.github.io", "http://localhost:5173", "*"],
+  methods: "GET, POST, PUT, DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+};
+
+//middleware
+app.use(cors(corsOptions));
+// app.options("*", cors(corsOptions));
+
+// app.set("trust proxy", 1);
+
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
-// Middleware
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
 
 connectDB();
