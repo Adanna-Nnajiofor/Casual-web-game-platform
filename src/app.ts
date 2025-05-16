@@ -12,50 +12,65 @@ import feedbackRoutes from "./routes/feedback.routes";
 import triviaRoutes from "./routes/trivia.routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-import connectDB from "./config/db";
+// import connectDB from "./config/db";
 import streetzRoutes from "./routes/streetz.routes";
-import { corsConfig } from "./config/cors.config";
+// import { corsConfig } from "./config/cors.config";
 
 const app: Application = express();
 
 // Trust proxy - important for Render.com
 app.set("trust proxy", 1);
 
-// Apply CORS configuration
-app.use(cors(corsConfig));
+// // CORS configuration
+// app.use(cors(corsConfig));
 
-// Pre-flight requests
-app.options("*", cors(corsConfig));
+// // Body parser middleware
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
-// Body parser middleware
+// CORS configuration
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  "https://ezzzinne.github.io",
+  "https://your-vercel-app.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "https://casual-web-game-platform.onrender.com",
+  "https://ezzzinne.github.io/playNaij-frontend",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+  })
+);
+
+// Parse JSON bodies
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Connect to database
-connectDB();
-
-// Health check route
-app.get("/", (_req: Request, res: Response) => {
-  res.send("Casual Web Game Platform Backend is running!");
-});
-
-// Setup Swagger documentation
-try {
-  const swaggerPath = path.join(process.cwd(), "src/swagger.yaml");
-  const swaggerDocument = YAML.load(swaggerPath);
-
-  // Serve Swagger UI at /api-docs
-  app.use("/api-docs", swaggerUi.serve);
-  app.get(
-    "/api-docs",
-    swaggerUi.setup(swaggerDocument, {
-      explorer: true,
-      customSiteTitle: "Casual Game Platform API Documentation",
-    })
-  );
-} catch (error) {
-  console.error("Failed to load Swagger documentation:", error);
-}
+// Load Swagger document
+const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 // Mount API routes
 app.use("/api/games", gameRoutes);
@@ -67,6 +82,15 @@ app.use("/api/friends", friendsRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/trivia", triviaRoutes);
 app.use("/api/streetz", streetzRoutes);
+
+// Health check route
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Casual Web Game Platform Backend is running!");
+});
+
+// Swagger documentation
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerDocument));
 
 // Error handler
 app.use(errorHandler);
