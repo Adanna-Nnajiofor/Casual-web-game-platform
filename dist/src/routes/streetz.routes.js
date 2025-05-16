@@ -6,6 +6,8 @@ const express_1 = require("express");
 // import { LetterPoint } from "../models/letterPoint.model";
 const streetz_controller_1 = require("../controllers/streetz.controller");
 const router = (0, express_1.Router)();
+//create a question
+router.post("/create/question", streetz_controller_1.seedQuestions);
 // GET a question
 router.get("/question", streetz_controller_1.getQuestion);
 // GET letter points
