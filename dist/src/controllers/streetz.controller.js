@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedQuestions = seedQuestions;
 exports.getQuestion = getQuestion;
 exports.getLetterPoints = getLetterPoints;
 exports.submitAnswer = submitAnswer;
-const Question_model_1 = require("../models/Question.model");
 const streetzScore_1 = require("../utils/streetzScore");
 const letterPoint_model_1 = require("../models/letterPoint.model");
 const firebase_admin_1 = require("../config/firebase-admin");
+const streetz_service_1 = require("../services/streetz.service");
 const slangValidator_1 = require("../utils/slangValidator");
 const db = firebase_admin_1.admin.firestore();
 const questionsCollection = db.collection("questions");
@@ -38,28 +39,44 @@ const letterPoints = {
     y: 3,
     z: 9,
 };
+async function seedQuestions(req, res) {
+    try {
+        // Call the seedNigerianQuestions function to seed questions
+        const seededQuestions = await (0, streetz_service_1.seedNigerianQuestions)();
+        // Log the seeded questions for debugging purposes
+        console.log("Seeded Questions:", seededQuestions);
+        res.json({
+            status: true,
+            message: "Questions seeded successfully",
+            seededQuestions,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            error: "Failed to seed questions",
+            details: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+}
 // GET a question
 async function getQuestion(req, res) {
     try {
         // Fetch a random question (category can be adjusted as needed)
-        const questions = await Question_model_1.QuestionModel.getRandomQuestionsByCategory("general", 1);
+        const question = await (0, streetz_service_1.getARandomQuestion)();
         // If no questions are found
-        if (questions.length === 0) {
+        if (!question) {
             res.status(404).json({ error: "No questions found" });
             return;
         }
         // Ensure the question has the required fields
-        const question = questions[0]; // Type assertion to ensure it is of type Question
         // If questionText or answer is missing, handle it
-        if (!question.questionText || !question.answer) {
+        if (!question.question || !question.answer) {
             res.status(500).json({ error: "Invalid question data" });
             return;
         }
-        const { id, questionText, answer } = question;
         res.json({
-            id,
-            questionText,
-            answer,
+            status: true,
+            question
         });
     }
     catch (error) {
