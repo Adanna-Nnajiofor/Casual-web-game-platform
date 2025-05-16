@@ -1,66 +1,32 @@
 import { Request, Response, NextFunction } from "express";
-import Session from "../models/Session.model";
-import Game from "../models/Game.model";
-import User from "../models/user.model";
-import Leaderboard from "../models/Leaderboard.model";
-import { validateAndUpdateScore } from "../services/score.service";
-import { AppError } from "../utils/AppError";
+import {
+  createAndSaveSession,
+  fetchSessionsByUser,
+} from "../services/session.service";
 
 export const saveSession = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { userId, gameId, score, duration, difficulty, completed } = req.body;
+  try {
+    const session = await createAndSaveSession(req);
+    res.status(201).json({ message: "Session saved", session });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSessionsByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { userId } = req.params;
 
   try {
-    // Check if the user is authenticated
-    if (!req.user || req.user.id !== userId) {
-      return next(new AppError("Unauthorized access", 401));
-    }
-
-    // Check if the game exists
-    const gameExists = await Game.findById(gameId);
-    if (!gameExists) {
-      return next(new AppError("Game not found", 404));
-    }
-
-    // Check if the user exists
-    const user = await User.findById(userId);
-    if (!user) {
-      return next(new AppError("User not found", 404));
-    }
-
-    // Create a new session
-    const newSession = new Session({
-      userId,
-      gameId,
-      score,
-      duration,
-      difficulty,
-      completed,
-    });
-
-    await newSession.save();
-
-    // Calculate new total score
-    const newTotalScore = user.stats.totalScore + score;
-
-    // Validate and update score
-    await validateAndUpdateScore(userId, newTotalScore, gameId);
-
-    // Update total games played
-    user.stats.totalGamesPlayed += 1;
-    await user.save();
-
-    // Update or create the leaderboard score if the score qualifies
-    await Leaderboard.findOneAndUpdate(
-      { userId, gameId },
-      { $max: { score } },
-      { upsert: true, new: true }
-    );
-
-    res.status(201).json({ message: "Session saved", session: newSession });
+    const sessions = await fetchSessionsByUser(userId);
+    res.status(200).json({ sessions });
   } catch (error) {
     next(error);
   }

@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { QuestionModel } from "../models/question.model";
+import { QuestionModel } from "../models/Question.model";
 import { calculateScore } from "../utils/streetzScore";
 import { LetterPointMap } from "../types/streetz";
 import { LetterPoint } from "../models/letterPoint.model";
 import { admin } from "../config/firebase-admin";
 import { getARandomQuestion, seedNigerianQuestions } from "../services/streetz.service";
+import { isValidSlang } from "../utils/slangValidator";
 
 const db = admin.firestore();
 const questionsCollection = db.collection("questions");
@@ -121,34 +122,42 @@ export async function getLetterPoints(
 export async function submitAnswer(req: Request, res: Response): Promise<void> {
   const { questionId, playerAnswer } = req.body;
 
-  // Validate input
   if (!questionId || !playerAnswer) {
     res.status(400).json({ error: "Missing questionId or playerAnswer" });
     return;
   }
 
   try {
-    // Fetch the question from Firestore by ID
     const snapshot = await questionsCollection.doc(questionId).get();
-    const question = snapshot.data(); // This should contain questionText, answer, and other fields
+    const question = snapshot.data();
 
     if (!question) {
       res.status(404).json({ error: "Question not found" });
       return;
     }
 
-    // Type assertion to ensure the question object matches the expected structure
     const typedQuestion = question as { answer: string; questionText: string };
 
-    // Calculate the score for the player's answer
+    const isValid = await isValidSlang(playerAnswer);
+
+    if (!isValid) {
+      res.status(400).json({
+        valid: false,
+        message: "No be am!",
+        score: 0,
+        correctAnswer: typedQuestion.answer,
+      });
+      return;
+    }
+
     const score = calculateScore(
       typedQuestion.answer,
       playerAnswer,
       letterPoints
     );
 
-    // Respond with the calculated score and the correct answer
     res.json({
+      valid: true,
       correctAnswer: typedQuestion.answer,
       playerAnswer,
       score,

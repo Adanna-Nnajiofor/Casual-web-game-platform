@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = exports.db = exports.admin = void 0;
 const admin = __importStar(require("firebase-admin"));
 exports.admin = admin;
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
 const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 if (!serviceAccountString) {
     throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is not defined in environment variables");

@@ -1,14 +1,10 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getGameBySlug = exports.getAllGames = void 0;
-const Game_model_1 = __importDefault(require("../models/Game.model"));
-//  Fetch all games
+exports.getGamesByType = exports.getGameBySlug = exports.getAllGames = void 0;
+const game_service_1 = require("../services/game.service");
 const getAllGames = async (req, res) => {
     try {
-        const games = await Game_model_1.default.find();
+        const games = await (0, game_service_1.fetchAllGames)();
         res.status(200).json(games);
     }
     catch (error) {
@@ -16,11 +12,10 @@ const getAllGames = async (req, res) => {
     }
 };
 exports.getAllGames = getAllGames;
-// Fetch a single game by slug
 const getGameBySlug = async (req, res) => {
     const { slug } = req.params;
     try {
-        const game = await Game_model_1.default.findOne({ slug });
+        const game = await (0, game_service_1.fetchGameBySlug)(slug);
         if (!game) {
             res.status(404).json({ message: "Game not found" });
             return;
@@ -32,3 +27,18 @@ const getGameBySlug = async (req, res) => {
     }
 };
 exports.getGameBySlug = getGameBySlug;
+const getGamesByType = async (req, res) => {
+    const { type } = req.query;
+    if (!type || typeof type !== "string") {
+        res.status(400).json({ message: "Missing or invalid game type" });
+        return;
+    }
+    try {
+        const games = await (0, game_service_1.fetchGamesByType)(type);
+        res.status(200).json(games);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to fetch games by type", error });
+    }
+};
+exports.getGamesByType = getGamesByType;

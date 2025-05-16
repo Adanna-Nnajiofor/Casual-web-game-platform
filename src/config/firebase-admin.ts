@@ -1,6 +1,10 @@
 import * as admin from "firebase-admin";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+// console.log('serviceAccountString:', serviceAccountString)
 
 if (!serviceAccountString) {
   throw new Error(

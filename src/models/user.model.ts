@@ -1,12 +1,15 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, model } from "mongoose";
 
 // Define the TypeScript interface for User
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
-  password: string;
+  password?: string;
+  provider: "google" | "facebook" | "local";
   avatar?: string;
+  firebaseUid?: string;
+  lastLogin: Date;
   stats: {
     totalGamesPlayed: number;
     totalScore: number;
@@ -20,7 +23,7 @@ export interface IUser extends Document {
   }[];
 }
 
-// Define the Mongoose schema
+// Define the Mongoose schema for User
 const UserSchema: Schema = new Schema(
   {
     username: {
@@ -37,11 +40,25 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
+    },
+    provider: {
+      type: String,
+      enum: ["google", "facebook", "local"],
+      default: "local",
       required: true,
     },
     avatar: {
       type: String,
       default: "",
+    },
+    firebaseUid: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
     },
     stats: {
       totalGamesPlayed: {
@@ -83,4 +100,7 @@ const UserSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<IUser>("User", UserSchema);
+// Create and export the User model
+const User = model<IUser>("User", UserSchema);
+
+export default User;
