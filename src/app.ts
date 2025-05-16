@@ -38,7 +38,7 @@ app.set("trust proxy", 1);
 
 const allowedOrigins = [
   "https://ezzzinne.github.io",
-  "https://your-vercel-app.vercel.app",
+  "https://casual-web-game-frontend-l6h72rspu-adanna-nnajiofors-projects.vercel.app/",
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:5000",
