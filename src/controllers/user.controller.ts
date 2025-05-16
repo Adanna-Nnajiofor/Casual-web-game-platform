@@ -5,6 +5,7 @@ import { cloudinary } from "../config/cloudinary";
 import { validateAndUpdateScore } from "../services/score.service";
 import { AvatarService } from "../services/avatar.service";
 import { AppError } from "../utils/AppError";
+import { Multer } from 'multer';
 
 // Create user
 export const createUser = async (

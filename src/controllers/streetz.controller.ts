@@ -4,6 +4,7 @@ import { calculateScore } from "../utils/streetzScore";
 import { LetterPointMap } from "../types/streetz";
 import { LetterPoint } from "../models/letterPoint.model";
 import { admin } from "../config/firebase-admin";
+import { getARandomQuestion, seedNigerianQuestions } from "../services/streetz.service";
 
 const db = admin.firestore();
 const questionsCollection = db.collection("questions");
@@ -37,6 +38,27 @@ const letterPoints: LetterPointMap = {
   z: 9,
 };
 
+export async function seedQuestions(req: Request, res: Response): Promise<void> {
+  try {
+    // Call the seedNigerianQuestions function to seed questions
+    const seededQuestions = await seedNigerianQuestions();
+
+    // Log the seeded questions for debugging purposes
+    console.log("Seeded Questions:", seededQuestions);
+
+    res.json({
+      status: true,
+      message: "Questions seeded successfully",
+      seededQuestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to seed questions",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+
 // Define the Question type
 interface Question {
   id: string;
@@ -45,15 +67,37 @@ interface Question {
 }
 
 // GET a question
-export async function getQuestion(req: Request, res: Response): Promise<Response> {
-  const question = await Question.findOne();
-  if (!question) return res.status(404).json({ error: 'No questions found' });
+export async function getQuestion(req: Request, res: Response): Promise<void> {
+  try {
+    // Fetch a random question (category can be adjusted as needed)
+    const question = await getARandomQuestion()
 
-  return res.json({
-    id: question.id,
-    questionText: question.questionText,
-  });
+    // If no questions are found
+    if (!question) {
+      res.status(404).json({ error: "No questions found" });
+      return;
+    }
+
+    // Ensure the question has the required fields
+
+
+    // If questionText or answer is missing, handle it
+    if (!question.question || !question.answer) {
+      res.status(500).json({ error: "Invalid question data" });
+      return;
+    }
+
+
+    res.json({
+     status:true,
+     question
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch question", details: error });
+  }
 }
+
+
 
 // GET letter points
 export async function getLetterPoints(
@@ -74,19 +118,27 @@ export async function getLetterPoints(
 }
 
 // POST submit answer
-export async function submitAnswer(req: Request, res: Response): Promise<Response> {
-    const { questionId, playerAnswer } = req.body;
-// Validate input
-if (!questionId || !playerAnswer) {
-    return res.status(400).json({ error: 'Missing questionId or playerAnswer' });
-}
-    try {
-        // Add logic to process the answer submission here
-        // Fetch the question from the database
-        const question = await Question.findById(questionId);
-        if (!question) {
-            return res.status(404).json({ error: 'Question not found' });
-        }
+export async function submitAnswer(req: Request, res: Response): Promise<void> {
+  const { questionId, playerAnswer } = req.body;
+
+  // Validate input
+  if (!questionId || !playerAnswer) {
+    res.status(400).json({ error: "Missing questionId or playerAnswer" });
+    return;
+  }
+
+  try {
+    // Fetch the question from Firestore by ID
+    const snapshot = await questionsCollection.doc(questionId).get();
+    const question = snapshot.data(); // This should contain questionText, answer, and other fields
+
+    if (!question) {
+      res.status(404).json({ error: "Question not found" });
+      return;
+    }
+
+    // Type assertion to ensure the question object matches the expected structure
+    const typedQuestion = question as { answer: string; questionText: string };
 
     // Calculate the score for the player's answer
     const score = calculateScore(

@@ -7,9 +7,13 @@ import {
   getQuestion,
   getLetterPoints,
   submitAnswer,
+  seedQuestions,
 } from "../controllers/streetz.controller";
 
 const router: Router = Router();
+
+//create a question
+router.post("/create/question", seedQuestions);
 
 // GET a question
 router.get("/question", getQuestion);

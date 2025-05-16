@@ -15,6 +15,8 @@ import YAML from "yamljs";
 import streetzGameRoutes from "./routes/streetz.routes";
 import connectDB  from "./config/db";
 import streetzRoutes from "./routes/streetz.routes";
+import { getLetterPoints, getQuestion, seedQuestions, submitAnswer } from "./controllers/streetz.controller";
+import { startServer } from ".";
 
 const app: Application = express();
 
@@ -22,12 +24,13 @@ const app: Application = express();
 const swaggerDocument = YAML.load(path.join(process.cwd(), "src/swagger.yaml"));
 
 // Middleware
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
+// app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json()); // Middleware to parse JSON bodies
 
 app.use('/api', streetzRoutes);
 
 connectDB(); // Connect to MongoDB
+
 
 // Routes
 app.use("/auth", authRoutes);
@@ -37,6 +40,11 @@ app.use("/leaderboard", leaderboardRoutes);
 app.use("/user", userRoutes);
 app.use("/friends", friendsRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/question", getQuestion);
+app.use("/create/question", seedQuestions);
+app.use("/question/letter-points", getLetterPoints);
+app.use("/submit-answer", submitAnswer);
+
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

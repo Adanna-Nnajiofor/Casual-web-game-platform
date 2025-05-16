@@ -1,13 +1,13 @@
 // scripts/seed.ts
 import mongoose from 'mongoose';
-import { Question } from '../src/models/question.model';
+import QuestionModel from '../src/models/question.model';
 import { LetterPoint } from '../src/models/letterPoint.model';
 import connectDB from '../src/config/db';
 
 async function seed() {
   await connectDB();
 
-  await Question.create({
+  await QuestionModel.create({
     questionText: 'Capital of France',
     answer: 'paris',
     scrambled: ['p', 'a', 'r', 'i', 's']
