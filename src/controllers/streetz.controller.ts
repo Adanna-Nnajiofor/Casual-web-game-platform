@@ -4,6 +4,7 @@ import { calculateScore } from "../utils/streetzScore";
 import { LetterPointMap } from "../types/streetz";
 import { LetterPoint } from "../models/letterPoint.model";
 import { admin } from "../config/firebase-admin";
+import { getARandomQuestion, seedNigerianQuestions } from "../services/streetz.service";
 import { isValidSlang } from "../utils/slangValidator";
 
 const db = admin.firestore();
@@ -38,6 +39,27 @@ const letterPoints: LetterPointMap = {
   z: 9,
 };
 
+export async function seedQuestions(req: Request, res: Response): Promise<void> {
+  try {
+    // Call the seedNigerianQuestions function to seed questions
+    const seededQuestions = await seedNigerianQuestions();
+
+    // Log the seeded questions for debugging purposes
+    console.log("Seeded Questions:", seededQuestions);
+
+    res.json({
+      status: true,
+      message: "Questions seeded successfully",
+      seededQuestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to seed questions",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+
 // Define the Question type
 interface Question {
   id: string;
@@ -49,37 +71,34 @@ interface Question {
 export async function getQuestion(req: Request, res: Response): Promise<void> {
   try {
     // Fetch a random question (category can be adjusted as needed)
-    const questions = await QuestionModel.getRandomQuestionsByCategory(
-      "general",
-      1
-    );
+    const question = await getARandomQuestion()
 
     // If no questions are found
-    if (questions.length === 0) {
+    if (!question) {
       res.status(404).json({ error: "No questions found" });
       return;
     }
 
     // Ensure the question has the required fields
-    const question = questions[0] as Question; // Type assertion to ensure it is of type Question
+
 
     // If questionText or answer is missing, handle it
-    if (!question.questionText || !question.answer) {
+    if (!question.question || !question.answer) {
       res.status(500).json({ error: "Invalid question data" });
       return;
     }
 
-    const { id, questionText, answer } = question;
 
     res.json({
-      id,
-      questionText,
-      answer,
+     status:true,
+     question
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch question", details: error });
   }
 }
+
+
 
 // GET letter points
 export async function getLetterPoints(
