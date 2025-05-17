@@ -38,7 +38,7 @@ const StreetzSchema = new mongoose_1.Schema({
     question: { type: String, required: true },
     answer: { type: String, required: true },
 }, {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
 });
-const Streetz = mongoose_1.default.model('Streetz', StreetzSchema);
+const Streetz = mongoose_1.default.model("Streetz", StreetzSchema);
 exports.default = Streetz;
