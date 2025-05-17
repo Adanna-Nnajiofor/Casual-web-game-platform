@@ -5,15 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // scripts/seed.ts
 const mongoose_1 = __importDefault(require("mongoose"));
-const streetz_model_1 = __importDefault(require("../src/models/streetz.model"));
-const letterPoint_model_1 = require("../src/models/letterPoint.model");
-const db_1 = __importDefault(require("../src/config/db"));
+const streetz_model_1 = __importDefault(require("../models/streetz.model"));
+const letterPoint_model_1 = require("../models/letterPoint.model");
+const db_1 = __importDefault(require("../config/db"));
 async function seed() {
     await (0, db_1.default)();
     await streetz_model_1.default.create({
-        questionText: 'Capital of France',
-        answer: 'paris',
-        scrambled: ['p', 'a', 'r', 'i', 's']
+        questionText: "Capital of France",
+        answer: "paris",
+        scrambled: ["p", "a", "r", "i", "s"],
     });
     const letterPoints = [
         { letter: "a", point: 2 },

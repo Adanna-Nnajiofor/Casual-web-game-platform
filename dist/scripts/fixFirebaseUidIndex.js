@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
-const db_1 = __importDefault(require("../src/config/db"));
-const user_model_1 = __importDefault(require("../src/models/user.model"));
+const db_1 = __importDefault(require("../config/db"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 const fixIndex = async () => {
     try {
         await (0, db_1.default)();

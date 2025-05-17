@@ -1,6 +1,6 @@
 import "dotenv/config";
-import connectDB from "../src/config/db";
-import User from "../src/models/user.model";
+import connectDB from "../config/db";
+import User from "../models/user.model";
 
 const fixIndex = async () => {
   try {
