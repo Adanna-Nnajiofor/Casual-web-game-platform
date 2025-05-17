@@ -1,27 +1,16 @@
 import { Request, Response } from "express";
 import { TriviaService } from "../services/trivia.service";
 
-// Fetch questions for the game
-// Get all or category-specific questions
+// Fetch all questions or by category
 export const getQuestions = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const count = req.query.count ? parseInt(req.query.count as string) : 10;
     const category = req.query.category as string | undefined;
-
-    // Validate count
-    if (isNaN(count) || count < 1 || count > 100) {
-      res.status(400).json({
-        message: "Invalid count parameter. Must be a number between 1 and 100",
-      });
-      return;
-    }
 
     console.log("Trivia Questions Request:", {
       category: category || "all categories",
-      count,
       headers: req.headers,
       method: req.method,
       url: req.originalUrl,
@@ -29,14 +18,11 @@ export const getQuestions = async (
 
     let questions;
     if (category) {
-      console.log(`Fetching ${count} questions for category: ${category}`);
-      questions = await TriviaService.fetchQuestionsByCategory(category, count);
+      questions = await TriviaService.fetchQuestionsByCategory(category);
     } else {
-      console.log(`Fetching ${count} questions from all categories`);
-      questions = await TriviaService.fetchAllQuestions(count);
+      questions = await TriviaService.fetchAllQuestions();
     }
 
-    // Log the results
     const questionsByCategory = questions.reduce(
       (acc: Record<string, number>, q) => {
         acc[q.category] = (acc[q.category] || 0) + 1;
@@ -46,13 +32,12 @@ export const getQuestions = async (
     );
 
     console.log("Questions fetched by category:", questionsByCategory);
-    console.log(`Successfully fetched ${questions.length} total questions`);
+    console.log(`Fetched ${questions.length} total questions`);
 
-    // Set CORS headers
-    if (req.headers.origin) {
-      res.header("Access-Control-Allow-Origin", req.headers.origin);
-      res.header("Access-Control-Allow-Credentials", "true");
-    }
+    // if (req.headers.origin) {
+    //   res.header("Access-Control-Allow-Origin", req.headers.origin);
+    //   res.header("Access-Control-Allow-Credentials", "true");
+    // }
 
     res.status(200).json({
       success: true,

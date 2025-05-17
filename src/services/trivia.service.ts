@@ -10,42 +10,21 @@ interface Question {
 }
 
 export class TriviaService {
-  // Fetch all random questions (any category)
-  static async fetchAllQuestions(count: number) {
+  // Fetch all questions
+  static async fetchAllQuestions() {
     try {
-      // First get all available categories
-      const allQuestions = (await QuestionModel.getRandomQuestions(
-        100
-      )) as Question[]; // Get more questions initially
-      const categories = [...new Set(allQuestions.map((q) => q.category))];
-
-      // Calculate how many questions to get per category
-      const questionsPerCategory = Math.ceil(count / categories.length);
-
-      let finalQuestions: Question[] = [];
-      for (const category of categories) {
-        const categoryQuestions =
-          (await QuestionModel.getRandomQuestionsByCategory(
-            category,
-            questionsPerCategory
-          )) as Question[];
-        finalQuestions = [...finalQuestions, ...categoryQuestions];
-      }
-
-      // Shuffle the final array and limit to requested count
-      finalQuestions = finalQuestions
-        .sort(() => Math.random() - 0.5)
-        .slice(0, count);
+      const allQuestions =
+        (await QuestionModel.getAllQuestions()) as Question[];
 
       console.log(
-        `Fetched questions by category:`,
-        finalQuestions.reduce<Record<string, number>>((acc, q) => {
+        `Fetched all questions by category:`,
+        allQuestions.reduce<Record<string, number>>((acc, q) => {
           acc[q.category] = (acc[q.category] || 0) + 1;
           return acc;
         }, {})
       );
 
-      return finalQuestions;
+      return allQuestions;
     } catch (error) {
       console.error("Error fetching all questions:", error);
       throw error;
@@ -53,11 +32,10 @@ export class TriviaService {
   }
 
   // Fetch questions by category
-  static async fetchQuestionsByCategory(category: string, count: number) {
+  static async fetchQuestionsByCategory(category: string) {
     try {
-      const questions = (await QuestionModel.getRandomQuestionsByCategory(
-        category,
-        count
+      const questions = (await QuestionModel.getAllQuestionsByCategory(
+        category
       )) as Question[];
       console.log(
         `Fetched ${questions.length} questions for category: ${category}`
@@ -72,12 +50,11 @@ export class TriviaService {
     }
   }
 
-  // Evaluating answers and calculating the score using the calculateTriviaScore utility
+  // Evaluate answers
   static async evaluateAnswers(
     answers: { questionId: string; selected: string }[]
   ) {
     try {
-      // Call the calculateTriviaScore function to evaluate the answers
       const results = await calculateTriviaScore(answers);
       return results;
     } catch (error: unknown) {

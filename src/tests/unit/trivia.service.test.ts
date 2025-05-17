@@ -1,26 +1,23 @@
 import { TriviaService } from "../../services/trivia.service";
 import { QuestionModel } from "../../models/Question.model";
-// import { admin } from "../../config/firebase-admin";
 import { calculateTriviaScore } from "../../utils/score.utils";
 
-// Mock Firestore
-jest.mock("../../config/firebase-admin", () => {
-  return {
-    admin: {
-      firestore: jest.fn(() => ({
-        collection: jest.fn().mockReturnThis(),
-        doc: jest.fn().mockReturnThis(),
-        get: jest.fn(),
-      })),
-    },
-  };
-});
+// Mock Firestore (optional – remove if not used directly)
+jest.mock("../../config/firebase-admin", () => ({
+  admin: {
+    firestore: jest.fn(() => ({
+      collection: jest.fn().mockReturnThis(),
+      doc: jest.fn().mockReturnThis(),
+      get: jest.fn(),
+    })),
+  },
+}));
 
 // Mock QuestionModel
 jest.mock("../../models/Question.model.ts", () => ({
   QuestionModel: {
-    getRandomQuestions: jest.fn(),
-    getRandomQuestionsByCategory: jest.fn(),
+    getAllQuestions: jest.fn(),
+    getAllQuestionsByCategory: jest.fn(),
   },
 }));
 
@@ -31,17 +28,24 @@ jest.mock("../../utils/score.utils", () => ({
 
 describe("TriviaService", () => {
   describe("fetchAllQuestions", () => {
-    it("should return all questions if no category is provided", async () => {
+    it("should return all questions", async () => {
       const mockQuestions = [
-        { id: "1", question: "What is 2+2?", answer: "4" },
+        {
+          id: "1",
+          question: "What is 2+2?",
+          options: ["1", "2", "3", "4"],
+          answer: "4",
+          category: "Math",
+        },
       ];
-      (QuestionModel.getRandomQuestions as jest.Mock).mockResolvedValue(
+
+      (QuestionModel.getAllQuestions as jest.Mock).mockResolvedValue(
         mockQuestions
       );
 
-      const result = await TriviaService.fetchAllQuestions(3);
+      const result = await TriviaService.fetchAllQuestions();
 
-      expect(QuestionModel.getRandomQuestions).toHaveBeenCalledWith(3);
+      expect(QuestionModel.getAllQuestions).toHaveBeenCalled();
       expect(result).toEqual(mockQuestions);
     });
   });
@@ -49,20 +53,23 @@ describe("TriviaService", () => {
   describe("fetchQuestionsByCategory", () => {
     it("should return category-specific questions", async () => {
       const mockQuestions = [
-        { id: "2", question: "Capital of France?", answer: "Paris" },
+        {
+          id: "2",
+          question: "Capital of France?",
+          options: ["Paris", "London", "Berlin", "Madrid"],
+          answer: "Paris",
+          category: "Geography",
+        },
       ];
-      (
-        QuestionModel.getRandomQuestionsByCategory as jest.Mock
-      ).mockResolvedValue(mockQuestions);
 
-      const result = await TriviaService.fetchQuestionsByCategory(
-        "Geography",
-        2
+      (QuestionModel.getAllQuestionsByCategory as jest.Mock).mockResolvedValue(
+        mockQuestions
       );
 
-      expect(QuestionModel.getRandomQuestionsByCategory).toHaveBeenCalledWith(
-        "Geography",
-        2
+      const result = await TriviaService.fetchQuestionsByCategory("Geography");
+
+      expect(QuestionModel.getAllQuestionsByCategory).toHaveBeenCalledWith(
+        "Geography"
       );
       expect(result).toEqual(mockQuestions);
     });
