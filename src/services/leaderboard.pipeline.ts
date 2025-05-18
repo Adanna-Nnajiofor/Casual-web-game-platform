@@ -64,7 +64,11 @@ export const buildLeaderboardPipeline = (
     },
   ];
 
-  // Removed all pagination stages
+  if (!userId) {
+    pipeline.push({ $skip: skip }, { $limit: limit });
+  } else {
+    pipeline.push({ $limit: 1 });
+  }
 
   return pipeline;
 };
