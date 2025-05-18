@@ -1,16 +1,16 @@
 // scripts/seed.ts
-import mongoose from 'mongoose';
-import streetz from '../src/models/streetz.model';
-import { LetterPoint } from '../src/models/letterPoint.model';
-import connectDB from '../src/config/db';
+import mongoose from "mongoose";
+import streetz from "../models/streetz.model";
+import { LetterPoint } from "../models/letterPoint.model";
+import connectDB from "../config/db";
 
 async function seed() {
   await connectDB();
 
   await streetz.create({
-    questionText: 'Capital of France',
-    answer: 'paris',
-    scrambled: ['p', 'a', 'r', 'i', 's']
+    questionText: "Capital of France",
+    answer: "paris",
+    scrambled: ["p", "a", "r", "i", "s"],
   });
 
   const letterPoints = [

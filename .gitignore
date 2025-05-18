@@ -3,4 +3,4 @@ node_modules
 /.mongodb-binaries
 .env.test
 firebase-service-account.json
-dist
+dist/
