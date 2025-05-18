@@ -70,28 +70,31 @@ interface Question {
 // GET a question
 export async function getQuestion(req: Request, res: Response): Promise<void> {
   try {
+    console.log(1)
     // Fetch a random question (category can be adjusted as needed)
     const question = await getARandomQuestion()
-
+    console.log(2)
     // If no questions are found
     if (!question) {
+      console.log(3)
       res.status(404).json({ error: "No questions found" });
       return;
     }
 
     // Ensure the question has the required fields
 
-
+    console.log(4)
     // If questionText or answer is missing, handle it
     if (!question.question || !question.answer) {
+      console.log(5)
       res.status(500).json({ error: "Invalid question data" });
       return;
     }
 
-
-    res.json({
-     status:true,
-     question
+    console.log(6)
+    res.status(200).json({
+      status: true,
+      question
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch question", details: error });
