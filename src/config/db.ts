@@ -21,7 +21,9 @@ const connectDB = async () => {
 
   // Only connect if not in test environment
   try {
-    const conn = await mongoose.connect(MONGO_URI);
+    const conn = await mongoose.connect(MONGO_URI, {
+      dbName: "playnaij",
+    });
     console.log(`MongoDB connected: ${conn.connection.host}`);
 
     // Check if there are any games in the database
