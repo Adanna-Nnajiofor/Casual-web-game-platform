@@ -102,6 +102,7 @@ export const seedNigerianQuestions = async () => {
 
 export const getARandomQuestion = async() => {
     const randomQuestion = await Streetz.aggregate([{ $sample: { size: 1 } }]);
+console.log(0, {randomQuestion})
     return randomQuestion[0];
 }
 
