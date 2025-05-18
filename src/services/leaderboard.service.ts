@@ -8,8 +8,6 @@ import { LeaderboardEntry } from "./types";
 
 export const getLeaderboardService = async (
   gameId: string,
-  page = 1,
-  limit = 10,
   userId?: string
 ): Promise<LeaderboardEntry[] | LeaderboardEntry> => {
   if (!mongoose.Types.ObjectId.isValid(gameId)) {
@@ -20,9 +18,7 @@ export const getLeaderboardService = async (
     throw new AppError("Invalid user ID", 400);
   }
 
-  const skip = (page - 1) * limit;
-
-  const pipeline = buildLeaderboardPipeline(gameId, userId, skip, limit);
+  const pipeline = buildLeaderboardPipeline(gameId, userId);
   const result = await Leaderboard.aggregate(pipeline);
 
   if (!result.length) {
@@ -62,8 +58,6 @@ export const postScoreService = async (
 
 export const getFriendLeaderboardService = async (
   gameId: string,
-  page: number,
-  limit: number,
   userId: string
 ) => {
   if (!mongoose.Types.ObjectId.isValid(gameId)) {
@@ -78,9 +72,7 @@ export const getFriendLeaderboardService = async (
 
   return await Leaderboard.find({ gameId, userId: { $in: friendsList } })
     .populate<{ userId: IUser }>("userId", "username")
-    .sort({ score: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .sort({ score: -1 });
 };
 
 export const getUserScoreService = async (gameId: string, userId: string) => {
