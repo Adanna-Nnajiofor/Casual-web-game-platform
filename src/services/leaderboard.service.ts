@@ -118,3 +118,13 @@ export const getUserRankService = async (gameId: string, userId: string) => {
     score: leaderboard[index].score,
   };
 };
+
+export const getGamesInLeaderboardService = async () => {
+  // Get distinct gameIds
+  const gameIds = await Leaderboard.distinct("gameId");
+
+  // Optionally populate game details
+  const games = await Game.find({ _id: { $in: gameIds } });
+
+  return games;
+};

@@ -5,6 +5,7 @@ import {
   getFriendLeaderboardService,
   getUserScoreService,
   getUserRankService,
+  getGamesInLeaderboardService,
 } from "../services/leaderboard.service";
 import { AppError } from "../utils/AppError";
 
@@ -95,6 +96,20 @@ export const getUserRank = async (
 
     const rankData = await getUserRankService(gameId, userId);
     res.json(rankData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get all games
+export const getGamesInLeaderboard = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const games = await getGamesInLeaderboardService();
+    res.json(games);
   } catch (err) {
     next(err);
   }

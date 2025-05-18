@@ -2,9 +2,7 @@ import mongoose from "mongoose";
 
 export const buildLeaderboardPipeline = (
   gameId: string,
-  userId?: string,
-  skip = 0,
-  limit = 10
+  userId?: string
 ): any[] => {
   const matchStage: any = { gameId: new mongoose.Types.ObjectId(gameId) };
   if (userId) matchStage.userId = new mongoose.Types.ObjectId(userId);
@@ -65,12 +63,6 @@ export const buildLeaderboardPipeline = (
       },
     },
   ];
-
-  if (!userId) {
-    pipeline.push({ $skip: skip }, { $limit: limit });
-  } else {
-    pipeline.push({ $limit: 1 });
-  }
 
   return pipeline;
 };
